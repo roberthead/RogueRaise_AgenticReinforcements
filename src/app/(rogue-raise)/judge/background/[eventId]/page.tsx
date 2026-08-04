@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
+import { Button } from "@/components/ui/button";
 import { judgeAccessMessage, redeemJudgeToken } from "@/lib/rogue-raise/judges/access";
 
 import { JudgeForm } from "./judge-form";
@@ -36,10 +39,8 @@ export default async function JudgeBackgroundPage({
   const access = await redeemJudgeToken({ rawToken: token, eventId });
   if (!access.ok) {
     return (
-      <main className="mx-auto flex min-h-full max-w-2xl flex-col justify-center gap-6 px-6 py-24">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          White Rabbit · Ashland, OR
-        </p>
+      <PageShell width="form" density="comfortable" align="center">
+        <p className="eyebrow">White Rabbit · Ashland, OR</p>
         <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
           We couldn&rsquo;t open your judge form
         </h1>
@@ -47,38 +48,35 @@ export default async function JudgeBackgroundPage({
           {judgeAccessMessage(access.reason)}
         </p>
         <div>
-          <Link
-            href="/rogue-raise"
-            className="inline-flex min-h-11 items-center rounded-md border border-wr-olive-green px-4 py-2 text-sm font-medium text-ink underline-offset-4 hover:underline"
-          >
-            Back to Rogue Raise
-          </Link>
+          <Button asChild variant="outline" size="touch">
+            <Link href="/rogue-raise">Back to Rogue Raise</Link>
+          </Button>
         </div>
-      </main>
+      </PageShell>
     );
   }
 
   const { judge, event } = access.access;
 
   return (
-    <main className="mx-auto flex min-h-full max-w-2xl flex-col gap-8 px-6 py-16 sm:py-20">
-      <header className="flex flex-col gap-4">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          {event.organizationName}
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
-          Thanks for judging
-        </h1>
-        <p className="max-w-prose text-lg text-ink/80">
-          You&rsquo;re judging <strong>{event.title}</strong>. Two things: tell us
-          how you&rsquo;d like to be introduced at kickoff, and ask anything you
-          want about how the work will be judged.
-        </p>
+    <PageShell width="form" density="comfortable">
+      <PageHeader
+        size="display"
+        eyebrow={event.organizationName}
+        title="Thanks for judging"
+        lede={
+          <>
+            {`You’re judging `}
+            <strong>{event.title}</strong>
+            {`. Two things: tell us how you’d like to be introduced at kickoff, and ask anything you want about how the work will be judged.`}
+          </>
+        }
+      >
         <p className="max-w-prose text-sm text-ink/60">
           This takes about three minutes. You can come back to this link and
           change anything until the event.
         </p>
-      </header>
+      </PageHeader>
 
       <JudgeForm
         eventId={eventId}
@@ -94,6 +92,6 @@ export default async function JudgeBackgroundPage({
           complete: judge.backgroundCompletedAt !== null,
         }}
       />
-    </main>
+    </PageShell>
   );
 }

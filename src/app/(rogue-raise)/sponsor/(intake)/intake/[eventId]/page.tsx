@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 import { canEditIntake, redeemIntakeToken } from "@/lib/rogue-raise/intake/access";
 import { loadIntake } from "@/lib/rogue-raise/intake/queries";
 
+import { IntakeClosed } from "./intake-closed";
 import { IntakeForm } from "./intake-form";
 import { InvalidLink } from "./invalid-link";
 
@@ -50,57 +52,31 @@ export default async function SponsorIntakePage({
   const { event, organizationName } = access.access;
 
   if (!canEditIntake(event.status)) {
-    return (
-      <main className="mx-auto flex min-h-full max-w-2xl flex-col justify-center gap-6 px-6 py-24">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          {organizationName}
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
-          Your intake is with us
-        </h1>
-        <p className="max-w-prose text-lg text-ink/80">
-          Thank you &mdash; we have everything we need for now, and your Rogue
-          Raise has moved on to the next stage. This form is closed to edits.
-        </p>
-        <p className="max-w-prose text-ink/70">
-          If something needs to change, reply to any email from us and we&rsquo;ll
-          take care of it.
-        </p>
-        <div>
-          <Link
-            href="/rogue-raise"
-            className="inline-flex min-h-11 items-center rounded-md border border-wr-olive-green px-4 py-2 text-sm font-medium text-ink underline-offset-4 hover:underline"
-          >
-            Back to Rogue Raise
-          </Link>
-        </div>
-      </main>
-    );
+    return <IntakeClosed organizationName={organizationName} />;
   }
 
   const intake = await loadIntake(eventId);
 
   return (
-    <main className="mx-auto flex min-h-full max-w-3xl flex-col gap-10 px-6 py-16 sm:py-20">
-      <header className="flex flex-col gap-4">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          {organizationName}
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
-          Shape your Rogue Raise
-        </h1>
-        <p className="max-w-prose text-lg text-ink/80">
-          A few details turn your approved Rogue Raise into a real weekend. Three
-          sections are <span className="font-medium text-ink">vital</span>{" "}
-          &mdash; they&rsquo;re what we need before the build can be scheduled and
-          stood up. The rest helps, and can come later.
-        </p>
+    <PageShell width="reading" density="comfortable">
+      <PageHeader
+        size="display"
+        eyebrow={organizationName}
+        title="Shape your Rogue Raise"
+        lede={
+          <>
+            {`A few details turn your approved Rogue Raise into a real weekend. Three sections are `}
+            <span className="font-medium text-ink">vital</span>
+            {` — they’re what we need before the build can be scheduled and stood up. The rest helps, and can come later.`}
+          </>
+        }
+      >
         <p className="max-w-prose text-sm text-ink/60">
           Everything saves as you type. You can close this page and come back to
           the same link whenever you like &mdash; there&rsquo;s no need to finish
           in one sitting.
         </p>
-      </header>
+      </PageHeader>
 
       <IntakeForm
         eventId={eventId}
@@ -108,6 +84,6 @@ export default async function SponsorIntakePage({
         initialDraft={intake.draft}
         initialAttachments={intake.attachments}
       />
-    </main>
+    </PageShell>
   );
 }

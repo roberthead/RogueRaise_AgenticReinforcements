@@ -32,18 +32,6 @@ const APP = join(ROOT, "src/app");
  * the staleness test below fails if you don't.
  */
 const PENDING_SHELL_MIGRATION: Record<string, string> = {
-  // External magic-link tier
-  "(rogue-raise)/sponsor/(intake)/intake/[eventId]/page.tsx": "pending 1.7",
-  "(rogue-raise)/sponsor/(intake)/intake/[eventId]/loading.tsx": "pending 1.7",
-  "(rogue-raise)/sponsor/(intake)/intake/[eventId]/invalid-link.tsx":
-    "pending 1.7 — a non-page file that renders a full-page shell of its own",
-  "(rogue-raise)/judge/background/[eventId]/page.tsx": "pending 1.7",
-  "(rogue-raise)/judge/score/[eventId]/page.tsx": "pending 1.7",
-  "(rogue-raise)/submit/[eventId]/page.tsx": "pending 1.7",
-  "(rogue-raise)/submit/[eventId]/done/page.tsx": "pending 1.7",
-  "(rogue-raise)/portal/[eventId]/page.tsx": "pending 1.7",
-  "(rogue-raise)/review/[eventId]/page.tsx": "pending 1.7",
-
   // Admin console
   "admin/(console)/page.tsx": "pending 1.7",
   "admin/(console)/events/page.tsx": "pending 1.7",
@@ -75,9 +63,25 @@ function appFiles(dir: string = APP): string[] {
 
 const key = (file: string) => file.slice(APP.length + 1);
 
+/**
+ * Strip comments before scanning, so prose ABOUT `<main>` is not mistaken for a
+ * `<main>`. Without this, documenting the rule in a docblock trips the rule —
+ * which happened, and is a bad property for a test whose whole job is to be
+ * explained in comments.
+ */
+function stripComments(source: string): string {
+  return (
+    source
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      // `(?<!:)` keeps `https://…` intact — without it, stripping trailing
+      // comments would also truncate every URL in the file.
+      .replace(/(?<!:)\/\/.*$/gm, "")
+  );
+}
+
 /** Does this file render a literal `<main>` element? */
 function rendersOwnMain(file: string): boolean {
-  return /<main[\s>]/.test(readFileSync(file, "utf8"));
+  return /<main[\s>]/.test(stripComments(readFileSync(file, "utf8")));
 }
 
 describe("page containers", () => {
@@ -133,13 +137,32 @@ describe("loading skeletons", () => {
    * an un-migrated skeleton would report a mismatch that step 1.7 is already
    * about to fix.
    */
-  const shellProps = (source: string) => ({
-    width: source.match(/width=["{]"?(\w+)"?/)?.[1],
-    density: source.match(/density=["{]"?(\w+)"?/)?.[1],
-    align: source.match(/align=["{]"?(\w+)"?/)?.[1] ?? "top",
-  });
+  /**
+   * EVERY shell in a file, not just the first.
+   *
+   * A page routinely declares more than one: an early-return guard (an expired
+   * link, a closed form) above the real content branch. Reading only the first
+   * match compares the skeleton against the guard, which is the wrong branch —
+   * it false-FAILS when the two legitimately differ, and worse, it can silently
+   * PASS when a guard happens to share the skeleton's props while the content
+   * branch has drifted. The second failure mode is the dangerous one, because
+   * a green test is indistinguishable from a correct one.
+   *
+   * So: collect them all, and require the skeleton's layout to match one of
+   * them. A skeleton stands in for whichever branch renders, so matching any
+   * declared layout is the honest rule.
+   */
+  const shellLayouts = (source: string): string[] =>
+    [...stripComments(source).matchAll(/<(?:PageShell|LoadingShell)\b([^>]*)>/g)].map(
+      ([, attrs]) => {
+        const width = attrs.match(/width="(\w+)"/)?.[1] ?? "?";
+        const density = attrs.match(/density="(\w+)"/)?.[1] ?? "?";
+        const align = attrs.match(/align="(\w+)"/)?.[1] ?? "top";
+        return `${width}/${density}/${align}`;
+      },
+    );
 
-  it("declare the same width, density and align as the page they stand in for", () => {
+  it("declare a width, density and align the page also declares", () => {
     const mismatches: string[] = [];
 
     for (const loading of appFiles().filter((f) => f.endsWith("loading.tsx"))) {
@@ -151,17 +174,15 @@ describe("loading skeletons", () => {
         continue; // A skeleton with no sibling page has nothing to match.
       }
 
-      const loadingSource = readFileSync(loading, "utf8");
-      const bothMigrated =
-        /LoadingShell|PageShell/.test(loadingSource) && /PageShell/.test(pageSource);
-      if (!bothMigrated) continue;
+      const pageLayouts = shellLayouts(pageSource);
+      const loadingLayouts = shellLayouts(readFileSync(loading, "utf8"));
+      if (pageLayouts.length === 0 || loadingLayouts.length === 0) continue;
 
-      const a = shellProps(pageSource);
-      const b = shellProps(loadingSource);
-      if (a.width !== b.width || a.density !== b.density || a.align !== b.align) {
+      const orphans = loadingLayouts.filter((l) => !pageLayouts.includes(l));
+      if (orphans.length > 0) {
         mismatches.push(
-          `${key(loading)}: page(${a.width}/${a.density}/${a.align}) ` +
-            `vs loading(${b.width}/${b.density}/${b.align})`,
+          `${key(loading)}: skeleton declares ${orphans.join(", ")}, ` +
+            `but its page only declares ${pageLayouts.join(", ")}`,
         );
       }
     }

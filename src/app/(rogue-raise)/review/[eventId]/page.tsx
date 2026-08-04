@@ -6,7 +6,11 @@ import {
   reviewAccessMessage,
 } from "@/lib/rogue-raise/stakeholders/access";
 import { loadReviewableAssets } from "@/lib/rogue-raise/stakeholders/review";
+import { Card } from "@/components/rogue-raise/card";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 import { Prose } from "@/components/rogue-raise/prose";
+import { Button } from "@/components/ui/button";
 
 import { ReviewForm } from "./review-form";
 
@@ -35,23 +39,18 @@ const TYPE_LABELS: Record<string, string> = {
 
 function Shell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-full max-w-2xl flex-col justify-center gap-6 px-6 py-24">
-      <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-        White Rabbit · Ashland, OR
-      </p>
+    <PageShell width="form" density="comfortable" align="center">
+      <p className="eyebrow">White Rabbit · Ashland, OR</p>
       <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
         {title}
       </h1>
       {children}
       <div>
-        <Link
-          href="/rogue-raise"
-          className="inline-flex min-h-11 items-center rounded-md border border-wr-olive-green px-4 py-2 text-sm font-medium text-ink underline-offset-4 hover:underline"
-        >
-          Back to Rogue Raise
-        </Link>
+        <Button asChild variant="outline" size="touch">
+          <Link href="/rogue-raise">Back to Rogue Raise</Link>
+        </Button>
       </div>
-    </main>
+    </PageShell>
   );
 }
 
@@ -91,30 +90,28 @@ export default async function StakeholderReviewPage({
   }
 
   return (
-    <main className="mx-auto flex min-h-full max-w-3xl flex-col gap-10 px-6 py-16">
-      <header className="flex flex-col gap-4">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          {event.organizationName}
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
-          Have we got this right?
-        </h1>
-        <p className="max-w-prose text-lg text-ink/80">
-          {`${stakeholder.name.split(" ")[0]}, this is what we've written about your problem for ${event.title}. Every team will build from it, so anything we've misunderstood is cheapest to fix now.`}
-        </p>
+    <PageShell width="reading" density="comfortable">
+      <PageHeader
+        size="display"
+        eyebrow={event.organizationName}
+        title="Have we got this right?"
+        lede={`${stakeholder.name.split(" ")[0]}, this is what we've written about your problem for ${event.title}. Every team will build from it, so anything we've misunderstood is cheapest to fix now.`}
+      >
         <p className="max-w-prose text-ink/70">
           Read what you have time for. A comment on one document is more useful
           than silence on all four, and nothing is held up by you taking your
           time.
         </p>
-      </header>
+      </PageHeader>
 
       <div className="flex flex-col gap-10">
         {assets.map((asset) => (
-          <section
+          <Card
+            as="section"
             key={asset.id}
+            padding="lg"
             aria-labelledby={`asset-${asset.id}`}
-            className="flex flex-col gap-5 rounded-lg border border-wr-olive-green/25 p-5"
+            className="flex flex-col gap-5"
           >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2
@@ -173,7 +170,7 @@ export default async function StakeholderReviewPage({
             ) : null}
 
             <ReviewForm eventId={eventId} token={token} asset={asset} />
-          </section>
+          </Card>
         ))}
       </div>
 
@@ -183,6 +180,6 @@ export default async function StakeholderReviewPage({
           easier said than typed, reply to the email that brought you here.
         </p>
       </footer>
-    </main>
+    </PageShell>
   );
 }

@@ -9,7 +9,11 @@ import { isPortalOpen } from "@/lib/rogue-raise/portal/invite";
 import { loadPortal } from "@/lib/rogue-raise/portal/queries";
 import { stewardshipLabel } from "@/lib/rogue-raise/portal/stewardship";
 
+import { Card } from "@/components/rogue-raise/card";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 import { Prose } from "@/components/rogue-raise/prose";
+import { Button } from "@/components/ui/button";
 import { StewardshipControl } from "./stewardship-control";
 
 /**
@@ -30,32 +34,27 @@ export const dynamic = "force-dynamic";
 
 function Shell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <main className="mx-auto flex min-h-full max-w-2xl flex-col justify-center gap-6 px-6 py-24">
-      <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-        White Rabbit · Ashland, OR
-      </p>
+    <PageShell width="form" density="comfortable" align="center">
+      <p className="eyebrow">White Rabbit · Ashland, OR</p>
       <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
         {title}
       </h1>
       {children}
       <div>
-        <Link
-          href="/rogue-raise"
-          className="inline-flex min-h-11 items-center rounded-md border border-wr-olive-green px-4 py-2 text-sm font-medium text-ink underline-offset-4 hover:underline"
-        >
-          Back to Rogue Raise
-        </Link>
+        <Button asChild variant="outline" size="touch">
+          <Link href="/rogue-raise">Back to Rogue Raise</Link>
+        </Button>
       </div>
-    </main>
+    </PageShell>
   );
 }
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-wr-olive-green/25 p-4">
+    <Card className="flex flex-col gap-1">
       <span className="font-serif text-3xl font-semibold text-ink">{value}</span>
       <span className="text-sm text-ink/70">{label}</span>
-    </div>
+    </Card>
   );
 }
 
@@ -97,18 +96,13 @@ export default async function PortalPage({
   const { stats } = portal;
 
   return (
-    <main className="mx-auto flex min-h-full max-w-4xl flex-col gap-12 px-6 py-16">
-      <header className="flex flex-col gap-4">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          {event.organizationName}
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
-          What got built for you
-        </h1>
-        <p className="max-w-prose text-lg text-ink/80">
-          {`${stakeholder.name.split(" ")[0]}, this is everything from ${event.title}: the code, the people who wrote it, and what the judges thought. It's yours — you don't need to come back to us for any of it.`}
-        </p>
-      </header>
+    <PageShell width="reading" density="comfortable">
+      <PageHeader
+        size="display"
+        eyebrow={event.organizationName}
+        title="What got built for you"
+        lede={`${stakeholder.name.split(" ")[0]}, this is everything from ${event.title}: the code, the people who wrote it, and what the judges thought. It's yours — you don't need to come back to us for any of it.`}
+      />
 
       {/* --- Dashboard (§8.1) ------------------------------------------- */}
       <section aria-labelledby="stats" className="flex flex-col gap-4">
@@ -214,9 +208,11 @@ export default async function PortalPage({
         ) : (
           <ul className="flex flex-col gap-6">
             {portal.submissions.map((submission) => (
-              <li
+              <Card
+                as="li"
                 key={submission.id}
-                className="flex flex-col gap-5 rounded-lg border border-wr-olive-green/25 p-5"
+                padding="lg"
+                className="flex flex-col gap-5"
               >
                 <div className="flex flex-col gap-2">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -259,31 +255,30 @@ export default async function PortalPage({
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                  <a
-                    href={submission.repoUrl}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    className="inline-flex min-h-11 items-center rounded-md border border-wr-olive-green px-4 py-2 text-sm font-medium text-ink underline-offset-4 hover:underline"
-                  >
-                    View the code
-                  </a>
-                  {submission.downloadUrl ? (
+                  <Button asChild variant="outline" size="touch">
                     <a
-                      href={submission.downloadUrl}
-                      className="inline-flex min-h-11 items-center rounded-md border border-wr-olive-green px-4 py-2 text-sm font-medium text-ink underline-offset-4 hover:underline"
-                    >
-                      Download it (.zip)
-                    </a>
-                  ) : null}
-                  {submission.pitchMaterialsUrl ? (
-                    <a
-                      href={submission.pitchMaterialsUrl}
+                      href={submission.repoUrl}
                       target="_blank"
                       rel="noreferrer noopener"
-                      className="inline-flex min-h-11 items-center rounded-md border border-wr-olive-green px-4 py-2 text-sm font-medium text-ink underline-offset-4 hover:underline"
                     >
-                      Slides / demo
+                      View the code
                     </a>
+                  </Button>
+                  {submission.downloadUrl ? (
+                    <Button asChild variant="outline" size="touch">
+                      <a href={submission.downloadUrl}>Download it (.zip)</a>
+                    </Button>
+                  ) : null}
+                  {submission.pitchMaterialsUrl ? (
+                    <Button asChild variant="outline" size="touch">
+                      <a
+                        href={submission.pitchMaterialsUrl}
+                        target="_blank"
+                        rel="noreferrer noopener"
+                      >
+                        Slides / demo
+                      </a>
+                    </Button>
                   ) : null}
                 </div>
 
@@ -363,7 +358,7 @@ export default async function PortalPage({
                   teamName={submission.teamName}
                   current={submission.stewardship}
                 />
-              </li>
+              </Card>
             ))}
           </ul>
         )}
@@ -375,6 +370,6 @@ export default async function PortalPage({
           to the email that brought you here.
         </p>
       </footer>
-    </main>
+    </PageShell>
   );
 }

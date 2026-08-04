@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
+import { Button } from "@/components/ui/button";
 import {
   judgeAccessMessage,
   redeemJudgeToken,
@@ -34,23 +37,18 @@ function Shell({
   children: React.ReactNode;
 }) {
   return (
-    <main className="mx-auto flex min-h-full max-w-2xl flex-col justify-center gap-6 px-6 py-24">
-      <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-        White Rabbit · Ashland, OR
-      </p>
+    <PageShell width="form" density="comfortable" align="center">
+      <p className="eyebrow">White Rabbit · Ashland, OR</p>
       <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
         {title}
       </h1>
       {children}
       <div>
-        <Link
-          href="/rogue-raise"
-          className="inline-flex min-h-11 items-center rounded-md border border-wr-olive-green px-4 py-2 text-sm font-medium text-ink underline-offset-4 hover:underline"
-        >
-          Back to Rogue Raise
-        </Link>
+        <Button asChild variant="outline" size="touch">
+          <Link href="/rogue-raise">Back to Rogue Raise</Link>
+        </Button>
       </div>
-    </main>
+    </PageShell>
   );
 }
 
@@ -118,19 +116,15 @@ export default async function JudgeScoringPage({
   ).length;
 
   return (
-    <main className="mx-auto flex min-h-full max-w-3xl flex-col gap-8 px-6 py-12 sm:py-16">
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          {event.organizationName}
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
-          Score the projects
-        </h1>
-        <p className="max-w-prose text-lg text-ink/80">
-          Thanks for judging, {judge.name.split(" ")[0]}.{" "}
-          {packet.submissions.length} project
-          {packet.submissions.length === 1 ? "" : "s"} to score.
-        </p>
+    <PageShell width="reading" density="comfortable">
+      <PageHeader
+        size="display"
+        eyebrow={event.organizationName}
+        title="Score the projects"
+        lede={`Thanks for judging, ${judge.name.split(" ")[0]}. ${
+          packet.submissions.length
+        } project${packet.submissions.length === 1 ? "" : "s"} to score.`}
+      >
         <p className="max-w-prose text-sm text-ink/70">
           {describeMethod(packet.criteria)} Save a card part-finished and come
           back to it — nothing is lost. A card counts once you submit it, and
@@ -143,7 +137,7 @@ export default async function JudgeScoringPage({
         >
           {done} of {packet.submissions.length} submitted
         </p>
-      </header>
+      </PageHeader>
 
       <div className="flex flex-col gap-6">
         {packet.submissions.map((submission, index) => (
@@ -157,6 +151,6 @@ export default async function JudgeScoringPage({
           />
         ))}
       </div>
-    </main>
+    </PageShell>
   );
 }
