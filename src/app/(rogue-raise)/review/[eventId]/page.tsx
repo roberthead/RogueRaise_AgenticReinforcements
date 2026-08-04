@@ -6,7 +6,7 @@ import {
   reviewAccessMessage,
 } from "@/lib/rogue-raise/stakeholders/access";
 import { loadReviewableAssets } from "@/lib/rogue-raise/stakeholders/review";
-import { Prose } from "@/app/portal/[eventId]/prose";
+import { Prose } from "@/components/rogue-raise/prose";
 
 import { ReviewForm } from "./review-form";
 

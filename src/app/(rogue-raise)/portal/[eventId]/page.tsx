@@ -9,7 +9,7 @@ import { isPortalOpen } from "@/lib/rogue-raise/portal/invite";
 import { loadPortal } from "@/lib/rogue-raise/portal/queries";
 import { stewardshipLabel } from "@/lib/rogue-raise/portal/stewardship";
 
-import { Prose } from "./prose";
+import { Prose } from "@/components/rogue-raise/prose";
 import { StewardshipControl } from "./stewardship-control";
 
 /**
