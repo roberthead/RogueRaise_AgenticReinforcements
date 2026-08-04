@@ -25,6 +25,30 @@ const buttonVariants = cva(
         xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
         sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        /*
+         * `touch` and `cta` are additions to shadcn's scale, not restyles of
+         * it, and they close a real gap rather than a cosmetic one.
+         *
+         * shadcn's largest text size is `lg` at `h-10` — 40px. This project's
+         * touch-target contract is 44px, so NO shadcn size satisfies it. That
+         * is not a theoretical mismatch: 15 call-to-action links across 12
+         * files bypass `<Button>` entirely and hand-roll
+         * `inline-flex min-h-11 items-center rounded-md border …` to reach it,
+         * which is how the public and external tiers ended up with buttons that
+         * share no styling with the admin console's. Adding the sizes here is
+         * the root-cause fix; `asChild` (already supported via Radix `Slot`,
+         * and used zero times today) turns each of those hand-rolled anchors
+         * into `<Button asChild size="touch">`.
+         *
+         * `min-h-*` rather than `h-*` on purpose: these wrap real sentences on
+         * narrow viewports and at 400% zoom, and a fixed height clips them.
+         *
+         * The admin console deliberately keeps `default`/`sm`. Its lower floor
+         * is a recorded decision — dense staff tooling on pointer devices, seen
+         * by about three people — not an oversight to be swept up later.
+         */
+        touch: "min-h-11 px-4 py-2",
+        cta: "min-h-12 px-6 py-3 text-base font-semibold",
         icon: "size-9",
         "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
         "icon-sm": "size-8",

@@ -308,6 +308,55 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /*
+   * Container scale — the four page widths, and the ONLY ones permitted.
+   *
+   * Before this existed, 32 files hand-rolled their own root container and the
+   * widths had drifted to five values across 39 call sites (17× 2xl, 10× 3xl,
+   * 7× 4xl, 4× 5xl, 1× sm). `max-w-4xl` is deliberately absent: its five pages
+   * plus two loading siblings redistribute to `wide` (the four admin consoles)
+   * and `reading` (the stakeholder portal, which is prose-led, not a console).
+   *
+   * `form` and `reading` are not round numbers by accident — they match the
+   * measured body (672px) and prose (768px) column widths on
+   * whiterabbitashland.com.
+   *
+   * Consume these through <PageShell width="…">, never as a bare `max-w-*` on a
+   * page. `design-system.test.ts` enforces that.
+   */
+  --container-form: 42rem; /* 672px — single-column forms, hub */
+  --container-reading: 48rem; /* 768px — prose-led pages, detail views */
+  --container-wide: 64rem; /* 1024px — admin queues and data tables */
+  --container-auth: 24rem; /* 384px — /admin/sign-in only */
+}
+
+/*
+ * The eyebrow: a small uppercase mono label above a page or section title.
+ *
+ * This pattern shipped 32 times across 25 files as the literal string
+ * `eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green` —
+ * where `eyebrow` was a DEAD CLASS matching nothing in any stylesheet. Someone
+ * started a design-system class, it never landed, and 32 copies of the fallback
+ * utilities shipped anyway. It went unnoticed for ten milestones, which is the
+ * clearest evidence in this repo that a convention living only in prose does
+ * not survive contact with future work.
+ *
+ * The values below reproduce those five utilities EXACTLY, so extracting the
+ * class is a pure refactor with no visual delta.
+ *
+ * TODO Phase 5 (visual direction): WR's own eyebrow measures 0.25em tracking at
+ * ~10.88px. `tracking-widest` is only 0.1em, so every eyebrow in this app is
+ * meaningfully tighter than the brand. Correcting it is a deliberate visual
+ * change and belongs with the type scale, not with this extraction.
+ */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem; /* = text-xs */
+  line-height: calc(1 / 0.75); /* = text-xs default leading */
+  text-transform: uppercase;
+  letter-spacing: 0.1em; /* = tracking-widest */
+  color: var(--wr-olive-green);
 }
 
 /*
