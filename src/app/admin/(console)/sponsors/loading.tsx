@@ -1,43 +1,40 @@
+import { Bone, LoadingShell } from "@/components/rogue-raise/skeleton";
+
 /**
  * Route-level loading skeleton for the curation queue. The visual bones are
  * `aria-hidden`; a single polite live region announces the load to AT.
+ *
+ * Width and density MUST match `page.tsx` — `LoadingShell` takes the identical
+ * prop type, and `design-system.test.ts` asserts the two agree.
  */
 export default function Loading() {
   return (
-    <main className="mx-auto flex min-h-full max-w-5xl flex-col gap-8 px-6 py-16">
-      <p role="status" className="sr-only">
-        Loading sponsor applications…
-      </p>
-
-      <div aria-hidden="true" className="flex flex-col gap-8">
-        {/* Header */}
-        <div className="flex flex-col gap-3">
-          <div className="h-3 w-20 animate-pulse rounded bg-muted" />
-          <div className="h-9 w-72 animate-pulse rounded bg-muted" />
-          <div className="h-4 w-96 max-w-full animate-pulse rounded bg-muted" />
-        </div>
-
-        {/* Filter chips */}
-        <div className="flex flex-wrap gap-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-9 w-28 animate-pulse rounded-full bg-muted"
-            />
-          ))}
-        </div>
-
-        {/* Rows */}
-        <div className="flex flex-col gap-3">
-          <div className="hidden h-8 w-full animate-pulse rounded bg-muted md:block" />
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-16 w-full animate-pulse rounded-lg bg-muted md:h-12"
-            />
-          ))}
-        </div>
+    <LoadingShell
+      width="wide"
+      density="compact"
+      label="Loading sponsor applications…"
+    >
+      {/* Header */}
+      <div className="flex flex-col gap-3">
+        <Bone className="h-3 w-20" />
+        <Bone className="h-9 w-72" />
+        <Bone className="h-4 w-96 max-w-full" />
       </div>
-    </main>
+
+      {/* Filter chips */}
+      <div className="flex flex-wrap gap-2">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Bone key={i} className="h-9 w-28 rounded-full" />
+        ))}
+      </div>
+
+      {/* Rows */}
+      <div className="flex flex-col gap-3">
+        <Bone className="hidden h-8 w-full md:block" />
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Bone key={i} className="h-16 w-full rounded-lg md:h-12" />
+        ))}
+      </div>
+    </LoadingShell>
   );
 }

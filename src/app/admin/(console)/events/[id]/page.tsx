@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 import { loadAdminEvent } from "@/lib/rogue-raise/events/queries";
 import {
   canConfirmWeekend,
@@ -75,7 +77,7 @@ export default async function AdminEventPage({
   }));
 
   return (
-    <main className="mx-auto flex min-h-full max-w-3xl flex-col gap-10 px-6 py-16">
+    <PageShell width="reading" density="compact">
       <div className="flex flex-wrap items-center gap-4">
         <Link
           href="/admin/events"
@@ -109,14 +111,11 @@ export default async function AdminEventPage({
         </Link>
       </div>
 
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          WR Admin
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink">
-          {event.organizationName}
-        </h1>
-        <p className="text-lg text-ink/80">{event.title}</p>
+      <PageHeader
+        eyebrow="WR Admin"
+        title={event.organizationName}
+        lede={event.title}
+      >
         <div className="flex flex-wrap items-center gap-3 text-sm">
           <span className="rounded-full border border-wr-olive-green/50 px-3 py-0.5 font-mono text-xs uppercase tracking-wide text-ink/80">
             {eventStatusLabel(event.status)}
@@ -127,7 +126,7 @@ export default async function AdminEventPage({
               : "No weekend confirmed yet"}
           </span>
         </div>
-      </header>
+      </PageHeader>
 
       {/* Intake progress — the same evaluation the sponsor sees on their form. */}
       <section
@@ -341,6 +340,6 @@ export default async function AdminEventPage({
           </ul>
         )}
       </Section>
-    </main>
+    </PageShell>
   );
 }

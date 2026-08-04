@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { count, eq, notInArray } from "drizzle-orm";
 
+import { PageShell } from "@/components/rogue-raise/page-shell";
 import { db } from "@/lib/rogue-raise/db";
 import { events, sponsorApplications } from "@/lib/rogue-raise/db/schema";
 
@@ -28,10 +29,8 @@ export default async function AdminHomePage() {
   const liveEventCount = eventRow?.value ?? 0;
 
   return (
-    <main className="mx-auto flex min-h-full max-w-2xl flex-col justify-center gap-6 px-6 py-24">
-      <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-        WR Admin
-      </p>
+    <PageShell width="form" density="compact" align="center">
+      <p className="eyebrow">WR Admin</p>
       <h1 className="font-serif text-4xl font-semibold text-ink">
         Rogue Raise console
       </h1>
@@ -69,6 +68,6 @@ export default async function AdminHomePage() {
           All events →
         </Link>
       </div>
-    </main>
+    </PageShell>
   );
 }

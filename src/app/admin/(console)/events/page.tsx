@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import { Card } from "@/components/rogue-raise/card";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 import {
   countAdminEventsByStatus,
   listAdminEvents,
@@ -62,17 +65,12 @@ export default async function AdminEventsPage({
   const countFor = (key: FilterKey) => (key === "all" ? total : (counts[key] ?? 0));
 
   return (
-    <main className="mx-auto flex min-h-full max-w-5xl flex-col gap-8 px-6 py-16">
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          WR Admin
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink">Events</h1>
-        <p className="max-w-prose text-ink/80">
-          Every Rogue Raise and where it stands. Open one to read the sponsor&rsquo;s
-          intake and lock in the weekend.
-        </p>
-      </header>
+    <PageShell width="wide" density="compact">
+      <PageHeader
+        eyebrow="WR Admin"
+        title="Events"
+        lede="Every Rogue Raise and where it stands. Open one to read the sponsor’s intake and lock in the weekend."
+      />
 
       <nav aria-label="Filter events by status">
         <ul className="flex flex-wrap gap-2">
@@ -136,10 +134,7 @@ export default async function AdminEventsPage({
             {rows.map((row) => {
               const missing = row.completeness.required.filter((r) => !r.met);
               return (
-                <li
-                  key={row.id}
-                  className="relative rounded-lg border border-wr-olive-green/25 p-4 transition-colors hover:bg-muted/60"
-                >
+                <Card as="li" key={row.id} interactive>
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     {/* One tab stop per row: the title is a stretched link. */}
                     <Link
@@ -208,12 +203,12 @@ export default async function AdminEventsPage({
                       <time dateTime={row.createdAt}>{formatDate(row.createdAt)}</time>
                     </dd>
                   </dl>
-                </li>
+                </Card>
               );
             })}
           </ul>
         )}
       </section>
-    </main>
+    </PageShell>
   );
 }

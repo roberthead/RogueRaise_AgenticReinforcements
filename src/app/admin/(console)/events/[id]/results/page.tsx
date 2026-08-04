@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { loadResults } from "@/lib/rogue-raise/judging/queries";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 
 import { ResultsConsole } from "./results-console";
 
@@ -20,17 +22,12 @@ export default async function ResultsPage({
   if (!results) notFound();
 
   return (
-    <main className="mx-auto flex min-h-full max-w-4xl flex-col gap-8 px-6 py-16">
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          WR Admin
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink">
-          {results.event.title}
-        </h1>
-        <p className="max-w-prose text-ink/80">
-          Scores, ties, and awards. Nothing here decides a winner for you.
-        </p>
+    <PageShell width="wide" density="compact">
+      <PageHeader
+        eyebrow="WR Admin"
+        title={results.event.title}
+        lede="Scores, ties, and awards. Nothing here decides a winner for you."
+      >
         <p className="text-sm">
           <Link
             href={`/admin/events/${id}`}
@@ -39,9 +36,9 @@ export default async function ResultsPage({
             ← Back to the event
           </Link>
         </p>
-      </header>
+      </PageHeader>
 
       <ResultsConsole results={results} />
-    </main>
+    </PageShell>
   );
 }

@@ -19,6 +19,9 @@ import {
   describeProvisioningBlockers,
 } from "@/lib/rogue-raise/repo/provision";
 import { cn } from "@/lib/utils";
+import { Card } from "@/components/rogue-raise/card";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 
 import { AgentRunner } from "./agent-runner";
 import { ReviewInviteButton } from "./review-invite-button";
@@ -110,7 +113,7 @@ export default async function AdminEventAgentsPage({
   };
 
   return (
-    <main className="mx-auto flex min-h-full max-w-4xl flex-col gap-10 px-6 py-16">
+    <PageShell width="wide" density="compact">
       <div>
         <Link
           href={`/admin/events/${id}`}
@@ -120,20 +123,16 @@ export default async function AdminEventAgentsPage({
         </Link>
       </div>
 
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          WR Admin
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink">Agents</h1>
-        <p className="max-w-prose text-ink/80">
-          Agents draft; people decide. Nothing here reaches a participant until
-          someone approves it.
-        </p>
+      <PageHeader
+        eyebrow="WR Admin"
+        title="Agents"
+        lede="Agents draft; people decide. Nothing here reaches a participant until someone approves it."
+      >
         <p className="text-sm text-ink/60">
           Event status: {eventStatusLabel(event.status)} · {runs.length} run(s) ·{" "}
           {costTokens.toLocaleString()} tokens spent so far.
         </p>
-      </header>
+      </PageHeader>
 
       {/* --- Drafts awaiting a decision --- */}
       <section aria-labelledby="drafts" className="flex flex-col gap-4">
@@ -147,10 +146,7 @@ export default async function AdminEventAgentsPage({
         ) : (
           <ul className="flex flex-col gap-3">
             {assetGroups.map((group) => (
-              <li
-                key={group.type}
-                className="rounded-lg border border-wr-olive-green/25 p-4"
-              >
+              <Card as="li" key={group.type}>
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <Link
@@ -186,7 +182,7 @@ export default async function AdminEventAgentsPage({
                       group.latest.reviewStatus}
                   </span>
                 </div>
-              </li>
+              </Card>
             ))}
           </ul>
         )}
@@ -242,10 +238,7 @@ export default async function AdminEventAgentsPage({
             const latestRun = agentRuns[0] ?? null;
 
             return (
-              <li
-                key={type}
-                className="flex flex-col gap-3 rounded-lg border border-wr-olive-green/25 p-4"
-              >
+              <Card as="li" key={type} className="flex flex-col gap-3">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <h3 className="font-serif text-lg font-semibold text-ink">
@@ -328,11 +321,11 @@ export default async function AdminEventAgentsPage({
                     </ul>
                   </details>
                 ) : null}
-              </li>
+              </Card>
             );
           })}
         </ul>
       </section>
-    </main>
+    </PageShell>
   );
 }

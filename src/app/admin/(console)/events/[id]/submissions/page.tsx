@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { loadAdminEvent } from "@/lib/rogue-raise/events/queries";
 import { listSubmissionsWithTeams } from "@/lib/rogue-raise/judging/queries";
 import { isSubmissionWindowOpen } from "@/lib/rogue-raise/submissions/invite";
+import { Card } from "@/components/rogue-raise/card";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 
 import { InviteButton } from "./invite-button";
 
@@ -37,13 +40,8 @@ export default async function SubmissionsPage({
   const open = isSubmissionWindowOpen(event.status);
 
   return (
-    <main className="mx-auto flex min-h-full max-w-4xl flex-col gap-8 px-6 py-16">
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          WR Admin
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink">Submissions</h1>
-        <p className="text-lg text-ink/80">{event.title}</p>
+    <PageShell width="wide" density="compact">
+      <PageHeader eyebrow="WR Admin" title="Submissions" lede={event.title}>
         <p className="flex flex-wrap gap-4 text-sm">
           <Link
             href={`/admin/events/${id}`}
@@ -58,7 +56,7 @@ export default async function SubmissionsPage({
             Results &amp; awards →
           </Link>
         </p>
-      </header>
+      </PageHeader>
 
       <section aria-labelledby="invite" className="flex flex-col gap-3">
         <h2 id="invite" className="font-serif text-2xl font-semibold text-wr-olive-green">
@@ -90,9 +88,10 @@ export default async function SubmissionsPage({
         ) : (
           <ul className="flex flex-col gap-3">
             {submissions.map((submission) => (
-              <li
+              <Card
+                as="li"
                 key={submission.id}
-                className="flex flex-col gap-2 rounded-lg border border-wr-olive-green/25 p-4"
+                className="flex flex-col gap-2"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <h3 className="font-serif text-lg font-semibold text-ink">
@@ -130,11 +129,11 @@ export default async function SubmissionsPage({
                     </a>
                   ) : null}
                 </p>
-              </li>
+              </Card>
             ))}
           </ul>
         )}
       </section>
-    </main>
+    </PageShell>
   );
 }

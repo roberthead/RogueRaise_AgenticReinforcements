@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 import { checkAdmin } from "@/lib/rogue-raise/admin/guard";
 
 import { SignInForm } from "./sign-in-form";
@@ -31,19 +33,12 @@ export default async function AdminSignInPage({
   if (check.ok) redirect(target);
 
   return (
-    <main className="mx-auto flex min-h-full max-w-sm flex-col justify-center gap-8 px-6 py-24">
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          WR Admin
-        </p>
-        <h1 className="font-serif text-3xl font-semibold text-ink">
-          Sign in
-        </h1>
-        <p className="text-ink/70">
-          The Rogue Raise console. Accounts are created by White Rabbit &mdash;
-          there&rsquo;s no sign-up here.
-        </p>
-      </header>
+    <PageShell width="auth" density="compact" align="center">
+      <PageHeader
+        eyebrow="WR Admin"
+        title="Sign in"
+        lede="The Rogue Raise console. Accounts are created by White Rabbit — there’s no sign-up here."
+      />
 
       <SignInForm next={target} />
 
@@ -55,6 +50,6 @@ export default async function AdminSignInPage({
           <code className="font-mono text-xs">npm run db:auth-migrate</code>.
         </p>
       ) : null}
-    </main>
+    </PageShell>
   );
 }

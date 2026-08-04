@@ -11,6 +11,8 @@ import {
   stakeholders,
 } from "@/lib/rogue-raise/db/schema";
 import { isActionableAppStatus } from "@/lib/rogue-raise/sponsors/schema";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 
 import {
   formatDate,
@@ -115,7 +117,7 @@ export default async function SponsorDetailPage({
   }
 
   return (
-    <main className="mx-auto flex min-h-full max-w-3xl flex-col gap-8 px-6 py-16">
+    <PageShell width="reading" density="compact">
       <div>
         <Link
           href="/admin/sponsors"
@@ -125,22 +127,17 @@ export default async function SponsorDetailPage({
         </Link>
       </div>
 
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          WR Admin · Sponsor application
-        </p>
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-serif text-4xl font-semibold text-ink">
-            {app.orgName}
-          </h1>
-          <StatusPill status={app.status} />
-        </div>
+      <PageHeader
+        eyebrow="WR Admin · Sponsor application"
+        title={app.orgName}
+        actions={<StatusPill status={app.status} />}
+      >
         <p className="text-sm text-ink/70">
           {app.submittedAt
             ? `Submitted ${formatDate(app.submittedAt)}`
             : "Not yet submitted"}
         </p>
-      </header>
+      </PageHeader>
 
       {/* --- Primary contact --- */}
       <section aria-labelledby="contact-heading" className="flex flex-col gap-3">
@@ -309,7 +306,7 @@ export default async function SponsorDetailPage({
           />
         )}
       </section>
-    </main>
+    </PageShell>
   );
 }
 

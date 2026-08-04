@@ -5,6 +5,9 @@ import { z } from "zod";
 import { loadAdminEvent } from "@/lib/rogue-raise/events/queries";
 import { eventStatusLabel } from "@/lib/rogue-raise/events/status";
 import { canReviewRepo, loadRepoReview } from "@/lib/rogue-raise/repo/review";
+import { Card } from "@/components/rogue-raise/card";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 
 import { FileCommentForm, RepoDecisions } from "./repo-review-controls";
 
@@ -35,7 +38,7 @@ export default async function RepoReviewPage({
   if (!review) notFound();
 
   return (
-    <main className="mx-auto flex min-h-full max-w-4xl flex-col gap-10 px-6 py-16">
+    <PageShell width="wide" density="compact">
       <div className="flex flex-wrap items-center gap-4">
         <Link
           href={`/admin/events/${id}`}
@@ -51,15 +54,11 @@ export default async function RepoReviewPage({
         </Link>
       </div>
 
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          WR Admin
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink">Repo review</h1>
-        <p className="max-w-prose text-ink/80">
-          What participants will read. Comment on any file, then approve to
-          publish or send it back to the agent.
-        </p>
+      <PageHeader
+        eyebrow="WR Admin"
+        title="Repo review"
+        lede="What participants will read. Comment on any file, then approve to publish or send it back to the agent."
+      >
         <p className="text-sm text-ink/60">
           Event status: {eventStatusLabel(event.status)} ·{" "}
           {review.isPublic ? "public" : "private"} · {review.files.length} files
@@ -91,7 +90,7 @@ export default async function RepoReviewPage({
           <strong className="text-ink/80">That doesn&rsquo;t exist yet</strong> —
           every comment here is recorded as WR Admin.
         </p>
-      </header>
+      </PageHeader>
 
       <RepoDecisions
         eventId={id}
@@ -138,10 +137,7 @@ export default async function RepoReviewPage({
 
         <ul className="flex flex-col gap-4">
           {review.files.map((file) => (
-            <li
-              key={file.path}
-              className="flex flex-col gap-2 rounded-lg border border-wr-olive-green/25 p-4"
-            >
+            <Card as="li" key={file.path} className="flex flex-col gap-2">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h3 className="font-mono text-sm font-semibold text-ink">{file.path}</h3>
                 {file.sourceAssetId ? (
@@ -185,10 +181,10 @@ export default async function RepoReviewPage({
               ) : null}
 
               <FileCommentForm eventId={id} filePath={file.path} />
-            </li>
+            </Card>
           ))}
         </ul>
       </section>
-    </main>
+    </PageShell>
   );
 }

@@ -13,10 +13,13 @@
  * time instead of becoming a junk drawer. Adding an entry should feel like a
  * decision; leaving a stale one is a test failure.
  *
- * The allow-list below is currently seeded with every file awaiting the step 1.7
- * migration. Each one is removed as it is migrated, and when the list is empty
- * the rule stands on its own. That is deliberately visible: the size of this
- * list is the honest measure of how much of the sweep is left.
+ * The allow-list below was seeded with every file awaiting the step 1.7
+ * migration — 32 of them — and each was removed as it was migrated. It is now
+ * EMPTY, so the rule stands on its own with nothing exempted from it. Keeping
+ * the (empty) object and this note rather than deleting both is the point: the
+ * next person who wants to hand-roll a `<main>` has to add an entry here, with
+ * a reason, in a diff a reviewer will see. That is the mechanism. Re-seeding it
+ * should feel like a decision, and a stale entry is still a test failure.
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
@@ -27,30 +30,12 @@ const ROOT = process.cwd();
 const APP = join(ROOT, "src/app");
 
 /**
- * Files under `src/app` that still render their own `<main>`, pending the step
- * 1.7 migration to `<PageShell>`. DELETE an entry as you migrate its file —
+ * Files under `src/app` allowed to render their own `<main>`, each with the
+ * reason it is exempt. EMPTY, and it should stay that way — `<PageShell>` owns
+ * the one `<main>` in this product. DELETE an entry as you migrate its file:
  * the staleness test below fails if you don't.
  */
-const PENDING_SHELL_MIGRATION: Record<string, string> = {
-  // Admin console
-  "admin/(console)/page.tsx": "pending 1.7",
-  "admin/(console)/events/page.tsx": "pending 1.7",
-  "admin/(console)/events/loading.tsx": "pending 1.7",
-  "admin/(console)/events/[id]/page.tsx": "pending 1.7",
-  "admin/(console)/events/[id]/loading.tsx": "pending 1.7",
-  "admin/(console)/events/[id]/agents/page.tsx": "pending 1.7",
-  "admin/(console)/events/[id]/agents/loading.tsx": "pending 1.7",
-  "admin/(console)/events/[id]/assets/[assetId]/page.tsx": "pending 1.7",
-  "admin/(console)/events/[id]/assets/[assetId]/loading.tsx": "pending 1.7",
-  "admin/(console)/events/[id]/repo-review/page.tsx": "pending 1.7",
-  "admin/(console)/events/[id]/repo-review/loading.tsx": "pending 1.7",
-  "admin/(console)/events/[id]/results/page.tsx": "pending 1.7",
-  "admin/(console)/events/[id]/submissions/page.tsx": "pending 1.7",
-  "admin/(console)/sponsors/page.tsx": "pending 1.7",
-  "admin/(console)/sponsors/loading.tsx": "pending 1.7",
-  "admin/(console)/sponsors/[id]/page.tsx": "pending 1.7",
-  "admin/sign-in/page.tsx": "pending 1.7",
-};
+const PENDING_SHELL_MIGRATION: Record<string, string> = {};
 
 /** Every `.tsx` under `src/app`, keyed by its path relative to `src/app`. */
 function appFiles(dir: string = APP): string[] {

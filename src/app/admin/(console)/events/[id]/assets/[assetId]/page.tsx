@@ -8,6 +8,9 @@ import {
   loadStakeholderVerdicts,
   needsStakeholderReview,
 } from "@/lib/rogue-raise/stakeholders/review";
+import { Card } from "@/components/rogue-raise/card";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 
 import { AssetReview } from "./asset-review";
 
@@ -59,7 +62,7 @@ export default async function AdminAssetPage({
     : undefined;
 
   return (
-    <main className="mx-auto flex min-h-full max-w-3xl flex-col gap-8 px-6 py-16">
+    <PageShell width="reading" density="compact">
       <div>
         <Link
           href={`/admin/events/${id}/agents`}
@@ -69,13 +72,10 @@ export default async function AdminAssetPage({
         </Link>
       </div>
 
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          {assetTypeLabel(asset.type)}
-        </p>
-        <h1 className="font-serif text-3xl font-semibold text-ink sm:text-4xl">
-          {asset.title ?? assetTypeLabel(asset.type)}
-        </h1>
+      <PageHeader
+        eyebrow={assetTypeLabel(asset.type)}
+        title={asset.title ?? assetTypeLabel(asset.type)}
+      >
         <p className="text-sm text-ink/70">
           Version {asset.version} ·{" "}
           {REVIEW_STATUS_LABELS[asset.reviewStatus] ?? asset.reviewStatus} ·{" "}
@@ -89,16 +89,17 @@ export default async function AdminAssetPage({
             {asset.reviewNote}
           </p>
         ) : null}
-      </header>
+      </PageHeader>
 
       {stakeholderReviewed ? (
-        <section
+        <Card
+          as="section"
           aria-labelledby="stakeholder-review"
-          className={
-            verdict && verdict.changesRequested > 0
-              ? "flex flex-col gap-3 rounded-lg border-2 border-ink bg-muted/60 p-5"
-              : "flex flex-col gap-3 rounded-lg border border-wr-olive-green/25 p-5"
+          variant={
+            verdict && verdict.changesRequested > 0 ? "emphasis" : "outline"
           }
+          padding="lg"
+          className="flex flex-col gap-3"
         >
           <h2
             id="stakeholder-review"
@@ -147,7 +148,7 @@ export default async function AdminAssetPage({
               ) : null}
             </>
           )}
-        </section>
+        </Card>
       ) : null}
 
       <AssetReview
@@ -215,6 +216,6 @@ export default async function AdminAssetPage({
           </ul>
         </section>
       ) : null}
-    </main>
+    </PageShell>
   );
 }

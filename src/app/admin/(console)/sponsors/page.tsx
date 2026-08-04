@@ -4,6 +4,8 @@ import { count, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/lib/rogue-raise/db";
 import { organizations, sponsorApplications } from "@/lib/rogue-raise/db/schema";
 import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 
 import {
   formatDate,
@@ -98,19 +100,12 @@ export default async function SponsorQueuePage({
     active === "all" ? "All applications" : STATUS_META[active].label;
 
   return (
-    <main className="mx-auto flex min-h-full max-w-5xl flex-col gap-8 px-6 py-16">
-      <header className="flex flex-col gap-3">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          WR Admin
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink">
-          Sponsor curation queue
-        </h1>
-        <p className="max-w-prose text-ink/80">
-          Review sponsorship applications and decide which Rogue Raises advance
-          to intake. Newest submissions first.
-        </p>
-      </header>
+    <PageShell width="wide" density="compact">
+      <PageHeader
+        eyebrow="WR Admin"
+        title="Sponsor curation queue"
+        lede="Review sponsorship applications and decide which Rogue Raises advance to intake. Newest submissions first."
+      />
 
       {/* Status filter — query-param links with live count badges. */}
       <nav aria-label="Filter applications by status">
@@ -263,7 +258,7 @@ export default async function SponsorQueuePage({
           </>
         )}
       </section>
-    </main>
+    </PageShell>
   );
 }
 
