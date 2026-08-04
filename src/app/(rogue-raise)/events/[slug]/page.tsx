@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 import { isPublicEvent, loadLandingPage } from "@/lib/rogue-raise/events/landing";
 
 /**
@@ -43,14 +45,12 @@ export default async function EventLandingPage({
     .join(", ");
 
   return (
-    <main className="mx-auto flex min-h-full max-w-3xl flex-col gap-12 px-6 py-16 sm:py-24">
-      <header className="flex flex-col gap-5">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          White Rabbit · Ashland, OR · with {event.organizationName}
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
-          {event.headline}
-        </h1>
+    <PageShell width="reading" density="comfortable">
+      <PageHeader
+        size="display"
+        eyebrow={`White Rabbit · Ashland, OR · with ${event.organizationName}`}
+        title={event.headline}
+      >
         {event.summary ? (
           <p className="max-w-prose whitespace-pre-wrap text-lg text-ink/80">
             {event.summary}
@@ -92,7 +92,7 @@ export default async function EventLandingPage({
               : "Registration for this Rogue Raise is closed."}
           </p>
         )}
-      </header>
+      </PageHeader>
 
       {event.scheduleLines.length > 0 ? (
         <section aria-labelledby="schedule" className="flex flex-col gap-3">
@@ -158,6 +158,6 @@ export default async function EventLandingPage({
           </Link>
         </div>
       ) : null}
-    </main>
+    </PageShell>
   );
 }

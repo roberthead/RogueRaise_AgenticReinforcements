@@ -1,5 +1,9 @@
 import Link from "next/link";
 
+import { Card } from "@/components/rogue-raise/card";
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
+import { Button } from "@/components/ui/button";
 import { listPublicEvents } from "@/lib/rogue-raise/events/landing";
 
 export const metadata = {
@@ -15,19 +19,13 @@ export default async function RogueRaiseHubPage() {
   const publicEvents = await listPublicEvents();
 
   return (
-    <main className="mx-auto flex min-h-full max-w-2xl flex-col gap-10 px-6 py-24">
-      <header className="flex flex-col gap-6">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          White Rabbit · Ashland, OR
-        </p>
-        <h1 className="font-serif text-5xl font-semibold text-ink">Rogue Raise</h1>
-        <p className="max-w-prose text-lg text-ink/80">
-          A community build event modeled on a barn raise. Neighbors gather to
-          raise working software and practical tools that solve a real problem
-          facing the Rogue Valley — and every project is handed to a committed
-          steward who carries it forward.
-        </p>
-      </header>
+    <PageShell width="form" density="comfortable">
+      <PageHeader
+        size="display"
+        eyebrow="White Rabbit · Ashland, OR"
+        title="Rogue Raise"
+        lede="A community build event modeled on a barn raise. Neighbors gather to raise working software and practical tools that solve a real problem facing the Rogue Valley — and every project is handed to a committed steward who carries it forward."
+      />
 
       <section aria-labelledby="upcoming" className="flex flex-col gap-4">
         <h2
@@ -44,10 +42,7 @@ export default async function RogueRaiseHubPage() {
         ) : (
           <ul className="flex flex-col gap-3">
             {publicEvents.map((event) => (
-              <li
-                key={event.slug}
-                className="rounded-lg border border-wr-olive-green/25 p-4"
-              >
+              <Card as="li" key={event.slug}>
                 <Link
                   href={`/events/${event.slug}`}
                   className="font-serif text-lg font-semibold text-ink underline-offset-4 hover:underline"
@@ -59,7 +54,7 @@ export default async function RogueRaiseHubPage() {
                   {event.weekendLabel ? ` · ${event.weekendLabel}` : ""}
                   {event.registrationOpen ? " · registration open" : ""}
                 </p>
-              </li>
+              </Card>
             ))}
           </ul>
         )}
@@ -77,14 +72,11 @@ export default async function RogueRaiseHubPage() {
           could genuinely move, tell us about it.
         </p>
         <div>
-          <Link
-            href="/sponsor"
-            className="inline-flex min-h-11 items-center rounded-md border border-wr-olive-green px-4 py-2 text-sm font-medium text-ink underline-offset-4 hover:underline"
-          >
-            Sponsor a Rogue Raise
-          </Link>
+          <Button asChild variant="outline" size="touch">
+            <Link href="/sponsor">Sponsor a Rogue Raise</Link>
+          </Button>
         </div>
       </section>
-    </main>
+    </PageShell>
   );
 }

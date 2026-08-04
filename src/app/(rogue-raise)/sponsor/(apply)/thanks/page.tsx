@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { PageShell } from "@/components/rogue-raise/page-shell";
+import { Button } from "@/components/ui/button";
+
 export const metadata: Metadata = {
   title: "Thanks — we received your application",
   description:
@@ -11,10 +14,8 @@ export const metadata: Metadata = {
 // redirect carries no query params, so this page stays generic (no email echo).
 export default function SponsorThanksPage() {
   return (
-    <main className="mx-auto flex min-h-full max-w-2xl flex-col justify-center gap-6 px-6 py-24">
-      <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-        White Rabbit · Ashland, OR
-      </p>
+    <PageShell width="form" density="comfortable" align="center">
+      <p className="eyebrow">White Rabbit · Ashland, OR</p>
 
       {/*
         `role="status"` + a focusable (tabindex -1) heading: on arrival, the
@@ -58,13 +59,10 @@ export default function SponsorThanksPage() {
       </p>
 
       <div>
-        <Link
-          href="/rogue-raise"
-          className="inline-flex min-h-11 items-center rounded-md border border-wr-olive-green px-4 py-2 text-sm font-medium text-ink underline-offset-4 hover:underline"
-        >
-          Back to Rogue Raise
-        </Link>
+        <Button asChild variant="outline" size="touch">
+          <Link href="/rogue-raise">Back to Rogue Raise</Link>
+        </Button>
       </div>
-    </main>
+    </PageShell>
   );
 }

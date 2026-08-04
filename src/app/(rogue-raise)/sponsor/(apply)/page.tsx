@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { PageHeader } from "@/components/rogue-raise/page-header";
+import { PageShell } from "@/components/rogue-raise/page-shell";
 import { getSpamGuard } from "@/lib/rogue-raise/integrations/spam";
 
 import { SponsorForm } from "./sponsor-form";
@@ -20,30 +22,24 @@ export default function SponsorSignUpPage() {
   const challenge = getSpamGuard().issueChallenge();
 
   return (
-    <main className="mx-auto flex min-h-full max-w-2xl flex-col gap-8 px-6 py-16 sm:py-24">
-      <header className="flex flex-col gap-4">
-        <p className="eyebrow font-mono text-xs uppercase tracking-widest text-wr-olive-green">
-          White Rabbit · Ashland, OR
-        </p>
-        <h1 className="font-serif text-4xl font-semibold text-ink sm:text-5xl">
-          Sponsor a Rogue Raise
-        </h1>
-        <p className="max-w-prose text-lg text-ink/80">
-          Rogue Raise is a community build event modeled on a barn raise. Tell us
-          about your organization and the problem you&rsquo;re facing, and
-          we&rsquo;ll review your interest and reach out about standing up a Rogue
-          Raise for you.
-        </p>
+    <PageShell width="form" density="comfortable">
+      <PageHeader
+        size="display"
+        eyebrow="White Rabbit · Ashland, OR"
+        title="Sponsor a Rogue Raise"
+        lede="Rogue Raise is a community build event modeled on a barn raise. Tell us about your organization and the problem you’re facing, and we’ll review your interest and reach out about standing up a Rogue Raise for you."
+      >
         <p className="max-w-prose text-sm text-ink/60">
-          Fields marked <span className="font-medium text-ink">(required)</span>{" "}
-          must be filled in. This form takes about five minutes.
+          {`Fields marked `}
+          <span className="font-medium text-ink">(required)</span>
+          {` must be filled in. This form takes about five minutes.`}
         </p>
-      </header>
+      </PageHeader>
 
       <SponsorForm
         challengeTs={challenge.renderedAt}
         challengeSig={challenge.sig}
       />
-    </main>
+    </PageShell>
   );
 }

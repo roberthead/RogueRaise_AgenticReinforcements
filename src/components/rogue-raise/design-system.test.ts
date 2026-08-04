@@ -32,14 +32,6 @@ const APP = join(ROOT, "src/app");
  * the staleness test below fails if you don't.
  */
 const PENDING_SHELL_MIGRATION: Record<string, string> = {
-  // Public marketing tier
-  "(rogue-raise)/rogue-raise/page.tsx": "pending 1.7",
-  "(rogue-raise)/events/[slug]/page.tsx": "pending 1.7",
-  "(rogue-raise)/events/[slug]/register/page.tsx": "pending 1.7",
-  "(rogue-raise)/events/[slug]/registered/page.tsx": "pending 1.7",
-  "(rogue-raise)/sponsor/(apply)/page.tsx": "pending 1.7",
-  "(rogue-raise)/sponsor/(apply)/thanks/page.tsx": "pending 1.7",
-
   // External magic-link tier
   "(rogue-raise)/sponsor/(intake)/intake/[eventId]/page.tsx": "pending 1.7",
   "(rogue-raise)/sponsor/(intake)/intake/[eventId]/loading.tsx": "pending 1.7",
