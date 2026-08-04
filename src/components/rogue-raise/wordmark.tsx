@@ -82,11 +82,13 @@ export function Wordmark({
         White Rabbit
       </span>
       {/*
-       * The `eyebrow` utility already supplies mono, uppercase, tracking and
-       * the olive colour. Adding font/size/case utilities here would override
-       * the very class this is meant to standardise.
+       * `eyebrow` stands alone, with NO trailing utilities. It already supplies
+       * mono, uppercase, size, tracking, leading and the olive colour, and any
+       * utility added beside it overrides the very class this is meant to
+       * standardise — which is exactly how the previous dead `eyebrow` class
+       * went unnoticed across 32 call sites for ten milestones.
        */}
-      <span className="eyebrow leading-none">Rogue Raise</span>
+      <span className="eyebrow">Rogue Raise</span>
     </span>
   );
 
