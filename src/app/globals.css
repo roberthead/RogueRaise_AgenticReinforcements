@@ -1,62 +1,306 @@
 @import "tailwindcss";
 
 /*
- * White Rabbit design tokens (PRD §3 / §13), vendored so this app already
- * matches whiterabbitashland.com and merges cleanly.
+ * ============================================================================
+ * White Rabbit design tokens (PRD §3 / §13)
+ * ============================================================================
  *
- * NOTE: the hex values below are close approximations of the observed WR palette
- * (`wr-olive-green`, `ink` near-black). Confirm exact values against the live
- * site before launch — the token *names* are the stable contract; the values are
- * trivial to correct here.
+ * SOURCE AND PROVENANCE
+ * ---------------------
+ * The light-palette hex values below were read from whiterabbitashland.com's
+ * compiled CSS and CONFIRMED BY THE PROJECT OWNER on 2026-08-03. They are
+ * explicitly NOT sourced from a formal WR brand guide — no such guide exists.
+ * WR tech staff need that distinction at merge time: these are *observed*
+ * production values, accurate as of the confirmation date, not a spec handed
+ * down by a design authority.
+ *
+ * (This replaces the previous "close approximations — confirm before launch"
+ * caveat, which is now resolved. The approximations were wrong in a way that
+ * failed WCAG AA; see the olive/paper notes below.)
+ *
+ * The DARK palette is a different kind of claim entirely — see its own block.
+ *
+ * TOKEN ARCHITECTURE — why this file is layered the way it is
+ * ----------------------------------------------------------
+ * Four layers, in this order:
+ *
+ *   :root         raw palette values                (OUTSIDE @theme)
+ *   .dark         raw palette overrides             (OUTSIDE @theme)
+ *   @theme inline --color-* : var(--raw-*)          (maps utilities to raw)
+ *   @theme        radii, font families              (non-themed, plain)
+ *
+ * The `inline` on the colour @theme is load-bearing, not stylistic. A plain
+ * `@theme` emits BOTH a `:root` variable and a utility that references it,
+ * creating an indirection layer that can serve a stale light value under
+ * `.dark`. `@theme inline` instead emits
+ *
+ *   .bg-background { background-color: var(--background) }
+ *
+ * directly, so the `.dark` override on `--background` is the only thing that
+ * resolves. This bites hardest on the self-referencing aliases here —
+ * `--foreground: var(--ink)` and `--border`/`--input`/`--ring` all aliased to
+ * olive — which is precisely most of this palette.
+ *
+ * Radii and font families do NOT change per theme, so they stay in a plain
+ * `@theme` block. Do not "consistency-refactor" them into `@theme inline`;
+ * they gain nothing and lose the emitted `:root` variables.
+ *
+ * CONSEQUENCE OF `@theme inline` YOU WILL TRIP OVER
+ * ------------------------------------------------
+ * `--color-*` names are NO LONGER emitted as CSS custom properties. Hand-written
+ * CSS must reference the RAW variable (`var(--ink)`), never `var(--color-ink)`.
+ * The unlayered base rules at the bottom of this file were migrated accordingly.
+ * Tailwind utilities (`text-ink`, `bg-background`, …) are unaffected — they are
+ * generated from the `@theme inline` block and all still resolve.
+ *
+ * CONTRAST DISCIPLINE
+ * -------------------
+ * Every colour in this file carries its measured WCAG 2.x contrast ratio and
+ * the role that ratio licenses. This is a deliberate, documented project asset:
+ * extend it when you add a token, never drop it. All ratios below were
+ * independently recomputed against the corrected paper `#f8f6f1` — they are not
+ * carried over from the previous revision, whose numbers were measured against
+ * a different (also wrong) paper.
+ *
+ * Thresholds: 4.5:1 normal text, 3:1 large text and non-text/UI components.
+ */
+
+/*
+ * Class-based dark variant.
+ *
+ * Tailwind v4's built-in `dark` variant keys off `prefers-color-scheme`. A
+ * runtime theme toggle needs a class strategy, so we declare it here. This is
+ * load-bearing rather than neutralising.
+ *
+ * INTENDED SIDE EFFECT: the 8 existing `dark:` utilities in
+ * `src/components/ui/{button,input,textarea,radio-group}.tsx` switch from the
+ * OS preference to the `.dark` class. Since no `.dark` class is applied
+ * anywhere yet, those utilities STOP firing spuriously on OS-dark devices —
+ * which is the correct behaviour today, given the dark palette is incomplete
+ * (below). Those files are deliberately NOT edited here; they are shadcn's own
+ * dark handling and get triaged per-utility in Phase 4, not deleted.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * ----------------------------------------------------------------------------
+ * LIGHT PALETTE — raw values. Confirmed 2026-08-03 (see provenance above).
+ * ----------------------------------------------------------------------------
+ * All ratios measured against paper `#f8f6f1`.
+ */
+:root {
+  /* Brand olive. CORRECTED from #6f7d3f, which measured 4.30:1 and FAILED AA
+   * for small text — a live accessibility defect in the shipped product, since
+   * the eyebrow label renders olive at text-xs across the app.
+   * olive → paper 5.98:1 ✓ AA small text
+   * white → olive 6.46:1 ✓ AA small text (see --primary note) */
+  --wr-olive-green: #3d6928;
+
+  /* Foreground neutral. 16.15:1 on paper ✓
+   * NAMING CAVEAT, recorded honestly: this value is WR's `deep`, not WR's
+   * `ink`. WR's true `ink` is #0a0a0a and their `deep` is #1a1816. This repo's
+   * token has always been called `ink` and is used at 489 call sites, so it
+   * keeps its name; do not assume it matches WR's `ink` at merge. */
+  --ink: #1a1a17;
+
+  /* Paper. CORRECTED from #fbfaf6. Every ratio in this file is measured
+   * against this value. */
+  --background: #f8f6f1;
+  --foreground: var(--ink);
+
+  /* Sage and amber are WR's dark-band accents. On a LIGHT surface both fail
+   * every text threshold and even the 3:1 non-text minimum, so on paper they
+   * are decorative fills only — never text, never a border carrying meaning.
+   * sage  → paper 2.13:1 ✗ FAILS
+   * amber → paper 2.18:1 ✗ FAILS
+   * Their real job is the dark surface, where they invert to 7.68:1 / 7.53:1.
+   * Do NOT reproduce WR's own #8cb76d CTA with white text: that measures
+   * 2.31:1 and is a genuine AA failure on their live site. */
+  --wr-sage: #8cb76d;
+  --wr-amber: #d4a04a;
+
+  /* --primary RETIRED to the brand olive.
+   * It previously held a deepened olive (#697939) that existed for exactly one
+   * reason: to drag white-on-olive from 4.49:1 up to 4.78:1 and scrape past AA,
+   * compensating for the wrong brand hex. With olive corrected, white on the
+   * true brand olive is 6.46:1 ✓ and the compensation token has no reason to
+   * exist. This also overturns the "never white on base olive" rule recorded in
+   * user-stories/done/admin-sponsor-curation-queue.md — that rule was correct
+   * against #6f7d3f and is superseded. */
+  --primary: var(--wr-olive-green);
+  --primary-foreground: #ffffff;
+
+  /* Surface tints. Both carry ink comfortably. */
+  --secondary: #eceadf; /* ink on it 14.45:1 ✓ */
+  --secondary-foreground: var(--ink);
+  --muted: #f0efe6; /* ink on it 15.11:1 ✓ */
+  --accent: #f0efe6; /* ink on it 15.11:1 ✓ */
+  --accent-foreground: var(--ink);
+
+  /* Placeholders, help text, de-emphasised metadata. 4.97:1 on paper ✓ AA.
+   * Note this DROPPED from 5.14:1 when paper was corrected — still passing,
+   * but the margin is now ~0.5. Do not lighten it further. */
+  --muted-foreground: #6b6b63;
+
+  /* Error text, error borders, invalid rings. 5.99:1 on paper ✓ */
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  /* Structural olive: borders, inputs, focus rings. Aliased, so correcting the
+   * brand hex above corrects all three. 5.98:1 on paper, well over the 3:1
+   * non-text minimum ✓ */
+  --border: var(--wr-olive-green);
+  --input: var(--wr-olive-green);
+  --ring: var(--wr-olive-green);
+
+  /* Cards and popovers sit flush on paper. */
+  --card: var(--background);
+  --card-foreground: var(--ink);
+  --popover: var(--background);
+  --popover-foreground: var(--ink);
+}
+
+/*
+ * ----------------------------------------------------------------------------
+ * ⚠️  DARK PALETTE — DELIBERATELY INCOMPLETE. DO NOT ACTIVATE.  ⚠️
+ * ----------------------------------------------------------------------------
+ *
+ * STATUS: architecture only. Phase 0 lays the token plumbing; Phase 4 designs
+ * the actual palette. What is here is the set of anchors that could be derived
+ * from OBSERVED WR band colours. Everything else is missing ON PURPOSE.
+ *
+ * NOTHING APPLIES THIS CLASS TODAY. No `.dark` class is set anywhere in the
+ * app and no theme toggle exists. That is the current safety mechanism, and it
+ * must stay that way until Phase 4 closes the gaps below. Ship a toggle against
+ * this block as it stands and users get unreadable pages — the missing tokens
+ * silently inherit their LIGHT values, which is not a graceful degradation but
+ * a hard failure:
+ *
+ *   cream #faf8f3 on un-flipped --secondary #eceadf  →  1.14:1  ✗✗ invisible
+ *   cream #faf8f3 on un-flipped --muted     #f0efe6  →  1.09:1  ✗✗ invisible
+ *   un-flipped --muted-foreground on deep            →  3.30:1  ✗ fails AA text
+ *
+ * TODO Phase 4 — these tokens have NO dark counterpart and must be designed,
+ * each shipping with a measured ratio (plan step 4.1):
+ *   --secondary, --secondary-foreground
+ *   --muted
+ *   --muted-foreground
+ *   --accent, --accent-foreground
+ *   --border, --input, --ring   (see the sage caveat below)
+ *   --primary-foreground        (currently #ffffff → on dark primary/sage
+ *                                that is 2.31:1 ✗ — the exact failure WR ships
+ *                                on their own CTA. Must become a dark ink.)
+ *   --destructive-foreground    (currently #ffffff → on #f87171 that is
+ *                                2.77:1 ✗. Must become a dark ink.)
+ *   --card, --card-foreground, --popover, --popover-foreground
+ *                               (these alias --background/--ink, so they follow
+ *                                automatically — verify, don't assume.)
+ *
+ * TODO Phase 4 — the global `:focus-visible` outline at the bottom of this file
+ * is a hardcoded ink outline. On the dark surface that measures 1.02:1 against
+ * #1a1816 — focus becomes INVISIBLE app-wide. The outline colour has to become
+ * theme-aware before dark mode is switchable. Sage on deep is 7.68:1 ✓ and is
+ * the obvious candidate.
+ *
+ * ORIGINAL DESIGN, NOT OBSERVED FACT — NEEDS WR REVIEW
+ * ---------------------------------------------------
+ * Unlike the light palette, this cannot be confirmed by observation. The
+ * reference site has dark BANDS (#0a0a0a, #1a1816 with sage and amber accents)
+ * but NO dark mode. A full dark surface is our invention. The light palette no
+ * longer needs WR sign-off; this does. Flag it on the merge checklist.
+ *
+ * Ratios below are measured against the dark background #1a1816.
+ */
+.dark {
+  /* WR `deep` — observed as a real WR band colour. */
+  --background: #1a1816;
+
+  /* WR `cream` — observed. 16.68:1 on deep ✓
+   * Set on --ink rather than --foreground because --foreground and the four
+   * *-foreground surface tokens all alias --ink; flipping the one raw value
+   * flips all of them together, and covers all 489 `text-ink` call sites.
+   * Yes, a token named "ink" holding a near-white is odd. It is the honest
+   * minimal change: renaming `ink` → `foreground` across 489 sites is its own
+   * piece of work, not a drive-by in a token file. */
+  --ink: #faf8f3;
+
+  /* THE STRUCTURAL FINDING: sage is not a decorative accent, it is the
+   * dark-mode olive. Brand olive #3d6928 on deep measures 2.74:1 — unusable as
+   * text and below even the 3:1 non-text minimum, so it cannot carry borders
+   * either. Sage on deep is 7.68:1 ✓ and takes over the whole olive role.
+   *
+   * CAVEAT for Phase 4: --border/--input/--ring alias --wr-olive-green, so this
+   * one override silently redirects them to full-strength sage. That is a
+   * *coherent* default, not a designed value — full-strength sage borders are
+   * likely too loud on a dark surface and probably want their own dimmer token.
+   * That is why those three are still on the TODO list above. */
+  --wr-olive-green: var(--wr-sage);
+
+  /* --wr-sage and --wr-amber are NOT overridden: they are already the dark-band
+   * values. They merely invert usefulness across themes —
+   *   sage:  2.13:1 on paper ✗ (decorative only)  →  7.68:1 on deep ✓ (text ok)
+   *   amber: 2.18:1 on paper ✗ (decorative only)  →  7.53:1 on deep ✓ (text ok)
+   * The amber accent ROLE is therefore already satisfied by `wr-amber` with no
+   * override needed. Note this is NOT the same thing as shadcn's `--accent`,
+   * which is a muted hover SURFACE, not an accent colour. Remapping that
+   * surface token onto amber is a design decision, so it stays on the TODO
+   * list rather than being invented here. */
+
+  /* #b91c1c on deep is 2.74:1 — unusable. #f87171 is 6.40:1 ✓.
+   * Marked CANDIDATE: verified for contrast, not yet reviewed as a design
+   * choice, and its foreground pairing is still wrong (see TODO above). */
+  --destructive: #f87171;
+}
+
+/*
+ * Colour utilities. `inline` is required — see the architecture note at the top.
+ * This block is the only thing that turns the raw variables above into
+ * `bg-*` / `text-*` / `border-*` / `ring-*` utilities.
+ */
+@theme inline {
+  --color-wr-olive-green: var(--wr-olive-green);
+  --color-wr-sage: var(--wr-sage);
+  --color-wr-amber: var(--wr-amber);
+  --color-ink: var(--ink);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+}
+
+/*
+ * Non-themed tokens. These are identical on both surfaces, so they stay in a
+ * plain (non-inline) `@theme` — they want the emitted `:root` variables.
  */
 @theme {
-  --color-wr-olive-green: #6f7d3f;
-  --color-ink: #1a1a17;
-
-  --color-background: #fbfaf6;
-  --color-foreground: var(--color-ink);
-
+  /* Typography. The --font-rr-* variables are injected by next/font in
+   * src/app/layout.tsx: Fraunces (serif display) + JetBrains Mono. */
   --font-sans: var(--font-rr-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-rr-serif), ui-serif, Georgia, serif;
   --font-mono: var(--font-rr-mono), ui-monospace, "JetBrains Mono", monospace;
-
-  /*
-   * Semantic (shadcn-expected) token layer mapped onto the WR palette. shadcn's
-   * generated primitives reference these via utilities like `bg-primary`,
-   * `border-input`, `text-destructive`, `ring-ring`, etc.
-   *
-   * Accessibility contract (verified against the #fbfaf6 paper background):
-   *   - Olive (#6f7d3f) is used ONLY for non-text/graphical roles here — borders,
-   *     rings, radio indicators — where AA needs 3:1 (olive→paper ≈ 4.29:1 ✓).
-   *   - `--color-primary` is a slightly deepened olive (#697939) reserved for the
-   *     filled submit button, so its WHITE label clears AA for small text
-   *     (white→#697939 ≈ 4.78:1 ✓); the exact brand olive stays on borders/rings.
-   *   - `--color-destructive` (#b91c1c) is error text/borders: ≈ 6.19:1 on paper ✓.
-   *   - `--color-muted-foreground` (#6b6b63) placeholders/help ≈ 5.15:1 on paper ✓.
-   */
-  --color-primary: #697939;
-  --color-primary-foreground: #ffffff;
-
-  --color-secondary: #eceadf;
-  --color-secondary-foreground: var(--color-ink);
-
-  --color-muted: #f0efe6;
-  --color-muted-foreground: #6b6b63;
-
-  --color-accent: #f0efe6;
-  --color-accent-foreground: var(--color-ink);
-
-  --color-destructive: #b91c1c;
-  --color-destructive-foreground: #ffffff;
-
-  --color-border: var(--color-wr-olive-green);
-  --color-input: var(--color-wr-olive-green);
-  --color-ring: var(--color-wr-olive-green);
-
-  --color-card: var(--color-background);
-  --color-card-foreground: var(--color-ink);
-  --color-popover: var(--color-background);
-  --color-popover-foreground: var(--color-ink);
 
   /* Corner radii (shadcn new-york convention). */
   --radius: 0.625rem;
@@ -66,19 +310,52 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/*
+ * ============================================================================
+ * BASE RULES — INTENTIONALLY UNLAYERED. DO NOT WRAP THESE IN `@layer base`.
+ * ============================================================================
+ *
+ * This is not untidiness. Tailwind v4 declares
+ * `@layer theme, base, components, utilities`, and in the CSS cascade UNLAYERED
+ * rules beat every layered rule regardless of specificity or source order.
+ * These four blocks depend on that.
+ *
+ * The `:focus-visible` rule below is the load-bearing case. `button.tsx` ships
+ * `outline-none` in its base class string, and shadcn's replacement indicator is
+ * `ring-ring/50` — a 50%-alpha ring that lands well under the 3:1 non-text
+ * minimum. The unlayered ink outline is therefore what ACTUALLY carries visible
+ * keyboard focus on every button in this product. Move it into `@layer base`
+ * "for consistency" and you silently delete focus visibility app-wide, with no
+ * test failure and no screenshot diff to catch it.
+ *
+ * Same reason the raw `:root` / `.dark` blocks above sit outside `@theme` and
+ * outside any layer.
+ */
+
 body {
-  background: var(--color-background);
-  color: var(--color-foreground);
+  background: var(--background);
+  color: var(--foreground);
 }
 
 /*
- * Robust keyboard-focus fallback: shadcn primitives paint their own olive ring,
- * but we guarantee an always-visible focus indicator with a high-contrast ink
- * outline (ink→paper ≈ 15:1, far above the 3:1 non-text minimum). Belt and
- * suspenders — if a ring is ever clipped/overridden, focus stays visible.
+ * Guaranteed keyboard-focus indicator (WCAG 2.4.7 Focus Visible, 1.4.11
+ * Non-text Contrast). Belt and suspenders over the shadcn ring: if a ring is
+ * ever clipped, overridden, or zeroed by `outline-none`, focus stays visible.
+ *
+ * ink → paper 16.15:1 ✓ (needs 3:1)
+ *
+ * ⚠️  KNOWN TRAP, live for whoever builds the header: ink → olive is 2.70:1,
+ * BELOW the 3:1 non-text minimum. Any olive-background band — header, footer,
+ * CTA band, filled olive button — BREAKS this outline. Such a surface must
+ * override the focus indicator to paper, which measures 5.98:1 on olive ✓.
+ * This is not hypothetical: the navigation work puts focusable links directly
+ * on an olive band.
+ *
+ * ⚠️  See also the dark-mode TODO above: this ink outline is 1.02:1 on the dark
+ * background and must become theme-aware before any toggle ships.
  */
 :focus-visible {
-  outline: 2px solid var(--color-ink);
+  outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
 

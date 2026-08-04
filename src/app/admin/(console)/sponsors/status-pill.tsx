@@ -11,12 +11,26 @@ export type QueueStatus = "submitted" | "under_review" | "approved" | "rejected"
 
 /**
  * Status → label + pill colours. Every pill is ALWAYS text-labelled (never
- * colour-only) and honours the globals.css contrast contract:
- *   - submitted → ink on `secondary` (#eceadf)     — ink ≈ 15:1
- *   - under review → muted-foreground on `muted`    — ≈ 5.15:1
- *   - approved → white on `primary` (#697939)       — ≈ 4.78:1
- *   - rejected → white on `destructive` (#b91c1c)   — ≈ 6.19:1
- * Never white text on the base olive (which is graphical-role only).
+ * colour-only) and honours the globals.css contrast contract.
+ *
+ * Ratios below are measured on the ACTUAL pill background (not on paper) at
+ * `text-xs`, so the AA small-text threshold of 4.5:1 applies to every row.
+ * Recomputed 2026-08-03 against the corrected palette — see globals.css:
+ *   - submitted     → ink on `secondary`      — 14.45:1 ✓
+ *   - under review  → muted-fg on `muted`     —  4.65:1 ✓ (tightest; a darker
+ *                                                 `muted` or lighter text would
+ *                                                 drop it below AA)
+ *   - approved      → white on `primary`      —  6.46:1 ✓
+ *   - rejected      → white on `destructive`  —  6.47:1 ✓
+ *
+ * The former rule "never white text on the base olive" is SUPERSEDED. It was an
+ * artifact of the wrong vendored olive (#6f7d3f), against which white measured
+ * 4.49:1 and failed. `--color-primary` no longer holds a separately deepened
+ * olive (#697939); it is now the corrected brand olive #3d6928, on which white
+ * measures 6.46:1. The `approved` pill IS white on base olive, and that is fine.
+ *
+ * The invariant that survives: every pill is always text-labelled. That was
+ * never about ratios and is unaffected by the correction.
  */
 export const STATUS_META: Record<QueueStatus, { label: string; pill: string }> = {
   submitted: {

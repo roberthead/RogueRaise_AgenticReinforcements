@@ -71,7 +71,7 @@ Add a WR Admin curation queue mirroring story 1's domain-module discipline: a ne
 
 ### Design & UX
 
-Queue: semantic `<table>` desktop / card list mobile (`md:`); `max-w-5xl`, eyebrow + serif h1 pattern; one tab stop per row (stretched org-name link); rows show submitted date (disambiguates same-name orgs). Status pills always text-labeled: Submitted → ink on `secondary`; Under review → `muted-foreground` on `muted`; Approved → white on `primary`; Rejected → white on `destructive`; never white on base olive. Filter = `<nav>` of query-param Links w/ count badges, `aria-current="page"` + non-color indicator. Financial: format from decimal string; `toDiscuss` → "To discuss"; null → "—". Detail: `max-w-3xl`, sectioned, back link. Reject trigger outline w/ destructive label; in-panel confirm `variant="destructive"` named "Confirm rejection — this cannot be undone". States: empty queue/filter, pending (`aria-busy`), resolved banner, PRG redirect + `role="status"` flash, inline error on failure.
+Queue: semantic `<table>` desktop / card list mobile (`md:`); `max-w-5xl`, eyebrow + serif h1 pattern; one tab stop per row (stretched org-name link); rows show submitted date (disambiguates same-name orgs). Status pills always text-labeled: Submitted → ink on `secondary`; Under review → `muted-foreground` on `muted`; Approved → white on `primary`; Rejected → white on `destructive`; never white on base olive **[SUPERSEDED 2026-08-03 — see "Superseded rules" at the end of this file]**. Filter = `<nav>` of query-param Links w/ count badges, `aria-current="page"` + non-color indicator. Financial: format from decimal string; `toDiscuss` → "To discuss"; null → "—". Detail: `max-w-3xl`, sectioned, back link. Reject trigger outline w/ destructive label; in-panel confirm `variant="destructive"` named "Confirm rejection — this cannot be undone". States: empty queue/filter, pending (`aria-busy`), resolved banner, PRG redirect + `role="status"` flash, inline error on failure.
 
 ### Accessibility
 
@@ -131,3 +131,28 @@ All 10 ACs ✅ met, with two caveats: AC9 (brand/responsive/a11y) and AC10 (badg
 - Give parallel agents disjoint file ownership, explicitly listed in both prompts.
 - The dead `under_review` filter tab (nothing sets that status in v1) is acceptable but should have been called out in the story's ACs up front rather than resolved in planning.
 - Carry-forwards for the intake/redemption story: reuse `hashMagicToken` + `timingSafeEqual`; email resend path for approve-email failures; consider a uniqueness migration for `events.sponsor_application_id`; prod deploy checklist must set `RR_MAGIC_LINK_SECRET` (now enforced by fail-fast).
+
+## Superseded rules
+
+**2026-08-03 — "never white on base olive" no longer applies.**
+
+The status-pill contract above forbade white text on base olive. That rule was
+correct when written, but only because the vendored olive was wrong.
+`globals.css` self-described its hexes as approximations; reading
+whiterabbitashland.com's compiled CSS showed the real token is `#3d6928`, not
+`#6f7d3f`. Confirmed by the project owner.
+
+- Against the old `#6f7d3f`, white measured **4.49:1** — below the 4.5:1 AA
+  threshold for small text, which is exactly the regression the M1 review caught.
+- Against the corrected `#3d6928`, white measures **6.46:1** — a comfortable pass.
+
+White on base olive is therefore permitted. The `--color-primary` token
+(`#697939`) that existed solely to give filled buttons a deep-enough olive has
+been retired to `var(--wr-olive-green)` for the same reason.
+
+**The invariant that survives:** every status pill is always text-labelled, never
+colour-only. That was never about contrast ratios and is unaffected by the
+correction.
+
+See `user-stories/current/redesign-ui.md` (Phase 0) for the full corrected
+palette and the recomputed ratio table.

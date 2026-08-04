@@ -104,7 +104,7 @@ Add `RR_SPAM_SECRET`, `RR_ADMIN_NOTIFY_EMAIL` to `.env.example` + local `.env`. 
 
 ### Design & UX
 
-Single-column form, five `<fieldset>` sections with Fraunces `<legend>`s: organization / primary contact / the problem / financial commitment / stakeholders. Only side-by-side pair: stakeholder email/phone (`sm:grid-cols-2`, `min-w-0`). Financial "to discuss" is a **radio group** ("Commit an amount" / "I'd prefer to discuss"), amount cleared + out of tab order when discussing. Stakeholder rows: hide Remove when 1 row; focus new row's Name on Add, previous Remove on Remove. Submitting → disable submit button only. Olive fails AA for small text (~4.26:1) — use for borders/rings/filled buttons/headings ≥24px only; body/error text on ink/verified danger color.
+Single-column form, five `<fieldset>` sections with Fraunces `<legend>`s: organization / primary contact / the problem / financial commitment / stakeholders. Only side-by-side pair: stakeholder email/phone (`sm:grid-cols-2`, `min-w-0`). Financial "to discuss" is a **radio group** ("Commit an amount" / "I'd prefer to discuss"), amount cleared + out of tab order when discussing. Stakeholder rows: hide Remove when 1 row; focus new row's Name on Add, previous Remove on Remove. Submitting → disable submit button only. Olive fails AA for small text (~4.26:1) — use for borders/rings/filled buttons/headings ≥24px only; body/error text on ink/verified danger color. **[SUPERSEDED 2026-08-03 — see "Superseded rules" at the end of this file]**
 
 ### Accessibility (WCAG AA)
 
@@ -169,3 +169,36 @@ Strengths confirmed: clean server/client boundary (no secret leak), NEXT_REDIREC
 - Export every shared constant (AMOUNT_REGEX) from the schema module immediately — "single source of truth" erodes one convenient re-declaration at a time.
 - Story ACs should name the dev-phase spam mechanism directly instead of "BotID or hCaptcha" + a Notes escape hatch — reviewers flag the mismatch otherwise.
 - Consider a dedicated DATABASE_URL_TEST before the next story with integration tests; per-test FK-ordered cleanup works but is brittle as tables accumulate.
+
+## Superseded rules
+
+**2026-08-03 — "olive fails AA for small text" no longer applies.**
+
+The design contract above restricted olive to borders, rings, filled buttons, and
+headings ≥24px, because olive measured ~4.26:1 against paper. That restriction
+was an artifact of a wrong hex, not a property of the brand colour.
+`globals.css` self-described its hexes as approximations; reading
+whiterabbitashland.com's compiled CSS showed the real token is `#3d6928`, not
+`#6f7d3f`. Confirmed by the project owner.
+
+- Against the old `#6f7d3f` on old paper `#fbfaf6`: **4.30:1** — fails AA for
+  small text (4.5:1).
+- Against the corrected `#3d6928` on corrected paper `#f8f6f1`: **5.98:1** —
+  passes AA for small text.
+
+Olive body text and olive small text are therefore legal. This matters most for
+the `eyebrow` label pattern, which shipped olive at `text-xs` across 25 files and
+was a live AA failure on every one of them until this correction.
+
+**A new constraint replaces it, in the opposite direction:** ink on olive is
+**2.70:1**, below the 3:1 non-text minimum. Any olive background band breaks the
+global ink focus outline, and must switch its focus indicator to paper
+(**5.98:1**). Olive is also unusable as text on a dark surface (**2.74:1**); the
+dark-mode olive role is filled by `wr-sage` `#8cb76d` (**7.68:1**).
+
+The record at "Fixed post-review (2a9b622): badge contrast (major —
+white-on-olive 4.49:1 < AA)" stays as written. It is an accurate account of what
+was true and what was fixed at the time, not a forward-looking rule.
+
+See `user-stories/current/redesign-ui.md` (Phase 0) for the full corrected
+palette and the recomputed ratio table.
