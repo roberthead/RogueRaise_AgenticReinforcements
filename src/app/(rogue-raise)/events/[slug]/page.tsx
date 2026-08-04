@@ -86,10 +86,13 @@ export default async function EventLandingPage({
             ) : null}
           </div>
         ) : (
+          // `registrationOpen` IS `status === "registration_open"` (see
+          // `isRegistrationOpen` in events/landing.ts), so reaching this branch
+          // already proves the status is something else. The test that used to
+          // sit here was dead, and it read as though an empty notice were a
+          // real state.
           <p className="rounded-md border border-input bg-muted/40 p-4 text-sm text-ink/80">
-            {event.status === "registration_open"
-              ? ""
-              : "Registration for this Rogue Raise is closed."}
+            Registration for this Rogue Raise is closed.
           </p>
         )}
       </PageHeader>

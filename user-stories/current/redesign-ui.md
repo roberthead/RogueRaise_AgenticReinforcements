@@ -603,11 +603,28 @@ Tailwind's default `prefers-color-scheme` variant — declaring
 **5. `min-h-full` + a header = a scrollbar on the centred pages.** Fixed once at
 the shell.
 
-**6. Form-reset desync — highest-value risk in Phase 2.** Eight client forms
-depend on `key={version}` plus a `useActionFocus` ref region that must live
-**outside** the keyed subtree. Wrapping a form in `<Card>` is safe; inserting a
-wrapper *between* the region and the form breaks focus-after-error. `Callout`'s
-API must make outside-the-form placement the default.
+**6. Form-reset desync — highest-value risk in Phase 2.** **Exactly three**
+client forms depend on `key={version}` plus a `useActionFocus` ref region that
+must live **outside** the keyed subtree:
+`(rogue-raise)/submit/[eventId]/submission-form.tsx`,
+`(rogue-raise)/judge/score/[eventId]/scorecard.tsx`, and
+`(rogue-raise)/review/[eventId]/review-form.tsx`. Wrapping a form in `<Card>` is
+safe; inserting a wrapper *between* the region and the form breaks
+focus-after-error. `Callout`'s API must make outside-the-form placement the
+default.
+
+*Corrected 2026-08-03.* This risk was first written as "eight client forms",
+derived from a grep for `key={` that mostly matched ordinary React list keys.
+The real marker is `useActionFocus`, and only three files import it. Two things
+follow, and the second is the useful one: the public tier was never exposed to
+this at all, and **all three genuinely-keyed forms sit in the external
+magic-link tier** — so the risk is concentrated in one batch rather than spread
+across the sweep. `(rogue-raise)/events/[slug]/register/registration-form.tsx`
+was specifically named as at-risk and is not: it has no `key`, uses uncontrolled
+`defaultValue` inputs, and keeps its `role="alert"` region *inside* the form.
+That is harmless today because nothing remounts it, but it means that form does
+not follow the `CalloutRegion` contract and should not be cited as an example of
+one that does.
 
 **7. Do not weaken the admin gate.** `(console)/layout.tsx` is simultaneously
 chrome, the server-side gate, and the `dynamic` declaration. Route-segment
