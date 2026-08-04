@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { loadAdminEvent } from "@/lib/rogue-raise/events/queries";
@@ -6,6 +5,7 @@ import { listSubmissionsWithTeams } from "@/lib/rogue-raise/judging/queries";
 import { isSubmissionWindowOpen } from "@/lib/rogue-raise/submissions/invite";
 import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
 import { Card } from "@/components/rogue-raise/card";
+import { EventSubNav } from "@/components/rogue-raise/event-sub-nav";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
 
@@ -50,17 +50,10 @@ export default async function SubmissionsPage({
         ]}
       />
 
-      <PageHeader eyebrow="WR Admin" title="Submissions" lede={event.title}>
-        {/* Sibling phase, not an ancestor. */}
-        <p className="flex flex-wrap gap-4 text-sm">
-          <Link
-            href={`/admin/events/${id}/results`}
-            className="font-medium text-ink underline underline-offset-4"
-          >
-            Results &amp; awards →
-          </Link>
-        </p>
-      </PageHeader>
+      {/* Sibling phases, not ancestors — kept out of the trail above. */}
+      <EventSubNav eventId={id} status={event.status} activeKey="submissions" />
+
+      <PageHeader eyebrow="WR Admin" title="Submissions" lede={event.title} />
 
       <section aria-labelledby="invite" className="flex flex-col gap-3">
         <h2 id="invite" className="font-serif text-2xl font-semibold text-wr-olive-green">

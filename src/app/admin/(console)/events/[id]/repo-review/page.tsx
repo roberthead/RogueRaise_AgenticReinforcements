@@ -7,6 +7,7 @@ import { eventStatusLabel } from "@/lib/rogue-raise/events/status";
 import { canReviewRepo, loadRepoReview } from "@/lib/rogue-raise/repo/review";
 import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
 import { Card } from "@/components/rogue-raise/card";
+import { EventSubNav } from "@/components/rogue-raise/event-sub-nav";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
 
@@ -48,15 +49,8 @@ export default async function RepoReviewPage({
         ]}
       />
 
-      {/* Sibling phase, not an ancestor — kept out of the trail above. */}
-      <div className="flex flex-wrap items-center gap-4">
-        <Link
-          href={`/admin/events/${id}/agents`}
-          className="text-sm font-medium text-ink underline underline-offset-4"
-        >
-          Agents &amp; drafts →
-        </Link>
-      </div>
+      {/* Sibling phases, not ancestors — kept out of the trail above. */}
+      <EventSubNav eventId={id} status={event.status} activeKey="repo-review" />
 
       <PageHeader
         eyebrow="WR Admin"

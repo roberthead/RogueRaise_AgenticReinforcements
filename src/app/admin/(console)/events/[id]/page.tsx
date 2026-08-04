@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
 import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
+import { EventSubNav } from "@/components/rogue-raise/event-sub-nav";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
 import { loadAdminEvent } from "@/lib/rogue-raise/events/queries";
@@ -88,32 +88,7 @@ export default async function AdminEventPage({
 
       {/* Sibling phases, NOT breadcrumbs — these move across an event rather
           than up out of it, so they stay their own row. */}
-      <div className="flex flex-wrap items-center gap-4">
-        <Link
-          href={`/admin/events/${id}/agents`}
-          className="text-sm font-medium text-ink underline underline-offset-4"
-        >
-          Agents &amp; drafts →
-        </Link>
-        <Link
-          href={`/admin/events/${id}/repo-review`}
-          className="text-sm font-medium text-ink underline underline-offset-4"
-        >
-          Repo review →
-        </Link>
-        <Link
-          href={`/admin/events/${id}/submissions`}
-          className="text-sm font-medium text-ink underline underline-offset-4"
-        >
-          Submissions →
-        </Link>
-        <Link
-          href={`/admin/events/${id}/results`}
-          className="text-sm font-medium text-ink underline underline-offset-4"
-        >
-          Results &amp; awards →
-        </Link>
-      </div>
+      <EventSubNav eventId={id} status={event.status} activeKey="overview" />
 
       <PageHeader
         eyebrow="WR Admin"

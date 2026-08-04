@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { loadResults } from "@/lib/rogue-raise/judging/queries";
 import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
+import { EventSubNav } from "@/components/rogue-raise/event-sub-nav";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
 
@@ -29,6 +30,12 @@ export default async function ResultsPage({
           { label: results.event.title, href: `/admin/events/${id}` },
           { label: "Results" },
         ]}
+      />
+
+      <EventSubNav
+        eventId={id}
+        status={results.event.status}
+        activeKey="results"
       />
 
       <PageHeader

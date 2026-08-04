@@ -21,6 +21,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
 import { Card } from "@/components/rogue-raise/card";
+import { EventSubNav } from "@/components/rogue-raise/event-sub-nav";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
 
@@ -122,6 +123,8 @@ export default async function AdminEventAgentsPage({
           { label: "Agents" },
         ]}
       />
+
+      <EventSubNav eventId={id} status={event.status} activeKey="agents" />
 
       <PageHeader
         eyebrow="WR Admin"

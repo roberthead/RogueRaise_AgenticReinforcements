@@ -3,7 +3,8 @@ import { count, desc, eq, sql } from "drizzle-orm";
 
 import { db } from "@/lib/rogue-raise/db";
 import { organizations, sponsorApplications } from "@/lib/rogue-raise/db/schema";
-import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/rogue-raise/empty-state";
+import { FilterChipNav } from "@/components/rogue-raise/filter-chip-nav";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
 
@@ -107,41 +108,19 @@ export default async function SponsorQueuePage({
         lede="Review sponsorship applications and decide which Rogue Raises advance to intake. Newest submissions first."
       />
 
-      {/* Status filter — query-param links with live count badges. */}
-      <nav aria-label="Filter applications by status">
-        <ul className="flex flex-wrap gap-2">
-          {FILTERS.map((f) => {
-            const isActive = f.key === active;
-            return (
-              <li key={f.key}>
-                <Link
-                  href={`/admin/sponsors?status=${f.key}`}
-                  aria-current={isActive ? "page" : undefined}
-                  className={cn(
-                    "inline-flex min-h-9 items-center gap-2 rounded-full border px-4 py-1.5 text-sm transition-colors",
-                    isActive
-                      ? // Non-colour active cue: filled + bold + underline (not colour alone).
-                        "border-ink bg-ink font-semibold text-background underline underline-offset-4"
-                      : "border-wr-olive-green/40 text-ink hover:bg-muted",
-                  )}
-                >
-                  {f.label}
-                  <span
-                    className={cn(
-                      "inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 font-mono text-xs font-semibold",
-                      isActive
-                        ? "bg-background/20 text-background"
-                        : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    {countFor(f.key)}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      {/* Status filter — query-param links with live count badges. The active
+          chip's non-colour cue (filled + bold + underline) lives in the
+          component now; see its docblock for why all three, always. */}
+      <FilterChipNav
+        label="Filter applications by status"
+        activeKey={active}
+        chips={FILTERS.map((f) => ({
+          key: f.key,
+          label: f.label,
+          href: `/admin/sponsors?status=${f.key}`,
+          count: countFor(f.key),
+        }))}
+      />
 
       <section aria-labelledby="queue-heading">
         <h2 id="queue-heading" className="sr-only">
@@ -149,7 +128,7 @@ export default async function SponsorQueuePage({
         </h2>
 
         {rows.length === 0 ? (
-          <EmptyState active={active} total={total} />
+          <QueueEmptyState active={active} total={total} />
         ) : (
           <>
             {/* Desktop: semantic table. */}
@@ -262,38 +241,41 @@ export default async function SponsorQueuePage({
   );
 }
 
-function EmptyState({
+function QueueEmptyState({
   active,
   total,
 }: {
   active: FilterKey;
   total: number;
 }) {
-  // Whole queue empty vs. a filter with no matches get different, honest copy.
+  // Whole queue empty vs. a filter with no matches get different, honest copy —
+  // which is the distinction `<EmptyState>`'s two variants make structural.
   if (total === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-wr-olive-green/40 p-8 text-center">
-        <p className="text-ink/80">No sponsor applications yet.</p>
-        <p className="mt-1 text-sm text-ink/60">
-          New submissions from the sponsor sign-up form will appear here.
-        </p>
-      </div>
+      <EmptyState
+        variant="empty"
+        title="No sponsor applications yet."
+        description="New submissions from the sponsor sign-up form will appear here."
+      />
     );
   }
 
   const label =
-    active === "all" ? "applications" : `${STATUS_META[active as QueueStatus].label.toLowerCase()} applications`;
+    active === "all"
+      ? "applications"
+      : `${STATUS_META[active as QueueStatus].label.toLowerCase()} applications`;
   return (
-    <div className="rounded-lg border border-dashed border-wr-olive-green/40 p-8 text-center">
-      <p className="text-ink/80">No {label} right now.</p>
-      <p className="mt-1 text-sm">
+    <EmptyState
+      variant="filtered"
+      title={`No ${label} right now.`}
+      action={
         <Link
           href="/admin/sponsors?status=all"
           className="font-medium text-ink underline underline-offset-4"
         >
           View all applications
         </Link>
-      </p>
-    </div>
+      }
+    />
   );
 }

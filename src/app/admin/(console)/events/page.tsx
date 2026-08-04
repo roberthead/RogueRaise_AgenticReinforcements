@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { Card } from "@/components/rogue-raise/card";
+import { EmptyState } from "@/components/rogue-raise/empty-state";
+import { FilterChipNav } from "@/components/rogue-raise/filter-chip-nav";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
 import {
@@ -10,7 +12,6 @@ import {
 import { isPublicEvent } from "@/lib/rogue-raise/events/landing";
 import { eventStatusLabel } from "@/lib/rogue-raise/events/status";
 import { formatWeekendLabel } from "@/lib/rogue-raise/intake/schedule";
-import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "Events · Rogue Raise",
@@ -72,39 +73,17 @@ export default async function AdminEventsPage({
         lede="Every Rogue Raise and where it stands. Open one to read the sponsor’s intake and lock in the weekend."
       />
 
-      <nav aria-label="Filter events by status">
-        <ul className="flex flex-wrap gap-2">
-          {FILTERS.map((f) => {
-            const isActive = f.key === active;
-            return (
-              <li key={f.key}>
-                <Link
-                  href={`/admin/events?status=${f.key}`}
-                  aria-current={isActive ? "page" : undefined}
-                  className={cn(
-                    "inline-flex min-h-9 items-center gap-2 rounded-full border px-4 py-1.5 text-sm transition-colors",
-                    isActive
-                      ? "border-ink bg-ink font-semibold text-background underline underline-offset-4"
-                      : "border-wr-olive-green/40 text-ink hover:bg-muted",
-                  )}
-                >
-                  {f.label}
-                  <span
-                    className={cn(
-                      "inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 font-mono text-xs font-semibold",
-                      isActive
-                        ? "bg-background/20 text-background"
-                        : "bg-muted text-muted-foreground",
-                    )}
-                  >
-                    {countFor(f.key)}
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+      {/* Status filter — query-param links with live count badges. */}
+      <FilterChipNav
+        label="Filter events by status"
+        activeKey={active}
+        chips={FILTERS.map((f) => ({
+          key: f.key,
+          label: f.label,
+          href: `/admin/events?status=${f.key}`,
+          count: countFor(f.key),
+        }))}
+      />
 
       <section aria-labelledby="events-heading">
         <h2 id="events-heading" className="sr-only">
@@ -112,23 +91,27 @@ export default async function AdminEventsPage({
         </h2>
 
         {rows.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-wr-olive-green/40 p-8 text-center">
-            <p className="text-ink/80">
-              {total === 0
-                ? "No events yet — approving a sponsor application creates one."
-                : "No events in this phase right now."}
-            </p>
-            {total > 0 ? (
-              <p className="mt-1 text-sm">
+          // "There are no events" and "no events match THIS filter" are
+          // different claims — the second one owes the user a way back out.
+          total === 0 ? (
+            <EmptyState
+              variant="empty"
+              title="No events yet — approving a sponsor application creates one."
+            />
+          ) : (
+            <EmptyState
+              variant="filtered"
+              title="No events in this phase right now."
+              action={
                 <Link
                   href="/admin/events?status=all"
                   className="font-medium text-ink underline underline-offset-4"
                 >
                   View all events
                 </Link>
-              </p>
-            ) : null}
-          </div>
+              }
+            />
+          )
         ) : (
           <ul className="flex flex-col gap-3">
             {rows.map((row) => {
