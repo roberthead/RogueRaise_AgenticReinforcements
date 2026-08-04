@@ -19,6 +19,7 @@ import {
   describeProvisioningBlockers,
 } from "@/lib/rogue-raise/repo/provision";
 import { cn } from "@/lib/utils";
+import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
 import { Card } from "@/components/rogue-raise/card";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
@@ -114,14 +115,13 @@ export default async function AdminEventAgentsPage({
 
   return (
     <PageShell width="wide" density="compact">
-      <div>
-        <Link
-          href={`/admin/events/${id}`}
-          className="text-sm font-medium text-ink underline underline-offset-4"
-        >
-          ← {event.organizationName}
-        </Link>
-      </div>
+      <Breadcrumbs
+        items={[
+          { label: "Events", href: "/admin/events" },
+          { label: event.title, href: `/admin/events/${id}` },
+          { label: "Agents" },
+        ]}
+      />
 
       <PageHeader
         eyebrow="WR Admin"

@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { ConsoleHeader } from "@/components/rogue-raise/console-header";
 import { checkAdmin } from "@/lib/rogue-raise/admin/guard";
-import { signOutAdmin } from "@/lib/rogue-raise/admin/sign-in-actions";
 
 /**
  * Server-side gate for every admin page (PRD §9, §12).
@@ -38,38 +37,10 @@ export default async function AdminLayout({
   return (
     <>
       {/* A landmark, so the sign-out control is reachable by landmark
-          navigation rather than only by tabbing from the top. */}
-      <header className="border-b border-wr-olive-green/20 bg-muted/40">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-2 text-sm">
-          <Link
-            href="/admin/events"
-            className="font-mono text-xs uppercase tracking-widest text-wr-olive-green underline-offset-4 hover:underline"
-          >
-            Rogue Raise admin
-          </Link>
-          <div className="flex flex-wrap items-center gap-4">
-            {isDev ? (
-              // Loud on purpose: it should be impossible to mistake a dev-open
-              // console for a real one.
-              <span className="rounded-full border border-destructive px-3 py-0.5 font-mono text-xs uppercase tracking-wide text-destructive">
-                Dev-open · no sign-in
-              </span>
-            ) : (
-              <>
-                <span className="text-ink/70">{check.admin.email}</span>
-                <form action={signOutAdmin}>
-                  <button
-                    type="submit"
-                    className="min-h-11 font-medium text-ink underline underline-offset-4"
-                  >
-                    Sign out
-                  </button>
-                </form>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
+          navigation rather than only by tabbing from the top. The section nav
+          that continues this band is rendered by each section's own layout —
+          see `console-nav.tsx` for why it cannot live in this shared one. */}
+      <ConsoleHeader email={check.admin.email} isDev={isDev} />
       {children}
     </>
   );

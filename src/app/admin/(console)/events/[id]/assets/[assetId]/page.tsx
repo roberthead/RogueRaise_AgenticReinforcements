@@ -8,6 +8,7 @@ import {
   loadStakeholderVerdicts,
   needsStakeholderReview,
 } from "@/lib/rogue-raise/stakeholders/review";
+import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
 import { Card } from "@/components/rogue-raise/card";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
@@ -63,14 +64,14 @@ export default async function AdminAssetPage({
 
   return (
     <PageShell width="reading" density="compact">
-      <div>
-        <Link
-          href={`/admin/events/${id}/agents`}
-          className="text-sm font-medium text-ink underline underline-offset-4"
-        >
-          ← Agents for {event.organizationName}
-        </Link>
-      </div>
+      <Breadcrumbs
+        items={[
+          { label: "Events", href: "/admin/events" },
+          { label: event.title, href: `/admin/events/${id}` },
+          { label: "Agents", href: `/admin/events/${id}/agents` },
+          { label: asset.title ?? assetTypeLabel(asset.type) },
+        ]}
+      />
 
       <PageHeader
         eyebrow={assetTypeLabel(asset.type)}

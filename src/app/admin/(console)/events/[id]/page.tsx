@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 
+import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
 import { loadAdminEvent } from "@/lib/rogue-raise/events/queries";
@@ -78,13 +79,16 @@ export default async function AdminEventPage({
 
   return (
     <PageShell width="reading" density="compact">
+      <Breadcrumbs
+        items={[
+          { label: "Events", href: "/admin/events" },
+          { label: event.title },
+        ]}
+      />
+
+      {/* Sibling phases, NOT breadcrumbs — these move across an event rather
+          than up out of it, so they stay their own row. */}
       <div className="flex flex-wrap items-center gap-4">
-        <Link
-          href="/admin/events"
-          className="text-sm font-medium text-ink underline underline-offset-4"
-        >
-          ← All events
-        </Link>
         <Link
           href={`/admin/events/${id}/agents`}
           className="text-sm font-medium text-ink underline underline-offset-4"

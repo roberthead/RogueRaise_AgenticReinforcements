@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { loadResults } from "@/lib/rogue-raise/judging/queries";
+import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
 
@@ -23,20 +23,19 @@ export default async function ResultsPage({
 
   return (
     <PageShell width="wide" density="compact">
+      <Breadcrumbs
+        items={[
+          { label: "Events", href: "/admin/events" },
+          { label: results.event.title, href: `/admin/events/${id}` },
+          { label: "Results" },
+        ]}
+      />
+
       <PageHeader
         eyebrow="WR Admin"
         title={results.event.title}
         lede="Scores, ties, and awards. Nothing here decides a winner for you."
-      >
-        <p className="text-sm">
-          <Link
-            href={`/admin/events/${id}`}
-            className="font-medium text-ink underline underline-offset-4"
-          >
-            ← Back to the event
-          </Link>
-        </p>
-      </PageHeader>
+      />
 
       <ResultsConsole results={results} />
     </PageShell>

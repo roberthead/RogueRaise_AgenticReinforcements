@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 
@@ -11,6 +10,7 @@ import {
   stakeholders,
 } from "@/lib/rogue-raise/db/schema";
 import { isActionableAppStatus } from "@/lib/rogue-raise/sponsors/schema";
+import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
 
@@ -118,14 +118,14 @@ export default async function SponsorDetailPage({
 
   return (
     <PageShell width="reading" density="compact">
-      <div>
-        <Link
-          href="/admin/sponsors"
-          className="inline-flex min-h-9 items-center text-sm font-medium text-ink underline-offset-4 hover:underline"
-        >
-          ← Back to queue
-        </Link>
-      </div>
+      {/* Replaces the lone "← Back to queue" link: same destination, but it
+          also states where this page sits rather than only how to leave it. */}
+      <Breadcrumbs
+        items={[
+          { label: "Sponsors", href: "/admin/sponsors" },
+          { label: app.orgName },
+        ]}
+      />
 
       <PageHeader
         eyebrow="WR Admin · Sponsor application"

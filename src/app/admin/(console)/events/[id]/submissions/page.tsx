@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { loadAdminEvent } from "@/lib/rogue-raise/events/queries";
 import { listSubmissionsWithTeams } from "@/lib/rogue-raise/judging/queries";
 import { isSubmissionWindowOpen } from "@/lib/rogue-raise/submissions/invite";
+import { Breadcrumbs } from "@/components/rogue-raise/breadcrumbs";
 import { Card } from "@/components/rogue-raise/card";
 import { PageHeader } from "@/components/rogue-raise/page-header";
 import { PageShell } from "@/components/rogue-raise/page-shell";
@@ -41,14 +42,17 @@ export default async function SubmissionsPage({
 
   return (
     <PageShell width="wide" density="compact">
+      <Breadcrumbs
+        items={[
+          { label: "Events", href: "/admin/events" },
+          { label: event.title, href: `/admin/events/${id}` },
+          { label: "Submissions" },
+        ]}
+      />
+
       <PageHeader eyebrow="WR Admin" title="Submissions" lede={event.title}>
+        {/* Sibling phase, not an ancestor. */}
         <p className="flex flex-wrap gap-4 text-sm">
-          <Link
-            href={`/admin/events/${id}`}
-            className="font-medium text-ink underline underline-offset-4"
-          >
-            ← Back to the event
-          </Link>
           <Link
             href={`/admin/events/${id}/results`}
             className="font-medium text-ink underline underline-offset-4"
