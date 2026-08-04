@@ -69,6 +69,12 @@ export interface DataTableRowHeader<Row> {
   /** The value identifying the row — the org name, the team name. */
   cell: (row: Row) => React.ReactNode;
   /**
+   * Utilities for the `scope="row"` cell, mirroring `DataTableColumn.className`.
+   * Without this the row-identifying cell was the ONLY cell in the table that
+   * could not be styled, which is backwards — it is the one carrying the name.
+   */
+  className?: string;
+  /**
    * Makes the row-identifying cell a stretched link to this destination. Omit
    * for a table whose rows do not open anything.
    */
@@ -137,9 +143,25 @@ export function DataTable<Row>({
         {rows.map((row) => (
           <tr
             key={rowKey(row)}
-            className="relative border-b border-wr-olive-green/15 transition-colors hover:bg-muted/60"
+            className={cn(
+              "border-b border-wr-olive-green/15",
+              // Row chrome ONLY when the row actually opens something. `relative`
+              // exists to anchor the stretched link, and a hover wash is a
+              // promise of interaction — putting either on a table whose rows go
+              // nowhere advertises an affordance that does not exist, which is
+              // worse than a flat row. Conditional on the same prop that decides
+              // whether a link is rendered at all, so the two can never disagree.
+              rowHeader.href &&
+                "relative transition-colors hover:bg-muted/60",
+            )}
           >
-            <th scope="row" className="py-3 pr-4 align-top font-medium">
+            <th
+              scope="row"
+              className={cn(
+                "py-3 pr-4 align-top font-medium",
+                rowHeader.className,
+              )}
+            >
               {rowHeader.href ? (
                 <Link
                   href={rowHeader.href(row)}

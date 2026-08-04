@@ -248,7 +248,15 @@ export function ResultsConsole({ results }: { results: ResultsView }) {
                   <th scope="col" className="py-2 pr-4 font-medium">
                     Team
                   </th>
-                  <th scope="col" className="py-2 pr-4 font-medium">
+                  {/* `aggregate()` ends with a descending sort on average
+                      (scoring.ts), and the caption above already says "highest
+                      first" — this tells a screen reader the same thing the
+                      caption tells everyone else. */}
+                  <th
+                    scope="col"
+                    aria-sort="descending"
+                    className="py-2 pr-4 font-medium"
+                  >
                     Average
                   </th>
                   <th scope="col" className="py-2 pr-4 font-medium">

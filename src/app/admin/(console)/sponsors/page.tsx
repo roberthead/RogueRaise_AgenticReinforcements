@@ -3,6 +3,10 @@ import { count, desc, eq, sql } from "drizzle-orm";
 
 import { db } from "@/lib/rogue-raise/db";
 import { organizations, sponsorApplications } from "@/lib/rogue-raise/db/schema";
+import {
+  DataTable,
+  type DataTableColumn,
+} from "@/components/rogue-raise/data-table";
 import { EmptyState } from "@/components/rogue-raise/empty-state";
 import { FilterChipNav } from "@/components/rogue-raise/filter-chip-nav";
 import { PageHeader } from "@/components/rogue-raise/page-header";
@@ -100,6 +104,45 @@ export default async function SponsorQueuePage({
   const activeLabel =
     active === "all" ? "All applications" : STATUS_META[active].label;
 
+  /** The shape one queue row carries — inferred from the query, never restated. */
+  type QueueRow = (typeof rows)[number];
+
+  // `Submitted` is the only sorted column (see the ORDER BY above), so it is the
+  // only one that may carry `aria-sort`. The org name is NOT here: it is the
+  // `rowHeader`, which `DataTable` renders as the single `<th scope="row">` and
+  // the single stretched link in the row.
+  const columns: DataTableColumn<QueueRow>[] = [
+    {
+      key: "poc",
+      header: "Primary contact",
+      cell: (r) => r.pocName,
+    },
+    {
+      key: "financial",
+      header: "Financial commitment",
+      cell: (r) => formatFinancial(r.amount, r.toDiscuss),
+    },
+    {
+      key: "submitted",
+      header: "Submitted",
+      sort: "descending",
+      cell: (r) =>
+        r.submittedAt ? (
+          <time dateTime={r.submittedAt.toISOString()}>
+            {formatDate(r.submittedAt)}
+          </time>
+        ) : (
+          // Never submitted is a different claim from submitted-with-no-date.
+          "—"
+        ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (r) => <StatusPill status={r.status} />,
+    },
+  ];
+
   return (
     <PageShell width="wide" density="compact">
       <PageHeader
@@ -131,73 +174,26 @@ export default async function SponsorQueuePage({
           <QueueEmptyState active={active} total={total} />
         ) : (
           <>
-            {/* Desktop: semantic table. */}
-            <table className="hidden w-full border-collapse text-left text-sm md:table">
-              <caption className="sr-only">
-                {activeLabel}, sorted by submission date, newest first.
-              </caption>
-              <thead>
-                <tr className="border-b border-wr-olive-green/30 text-xs uppercase tracking-wide text-ink/70">
-                  <th scope="col" className="py-3 pr-4 font-medium">
-                    Organization
-                  </th>
-                  <th scope="col" className="py-3 pr-4 font-medium">
-                    Primary contact
-                  </th>
-                  <th scope="col" className="py-3 pr-4 font-medium">
-                    Financial commitment
-                  </th>
-                  <th
-                    scope="col"
-                    aria-sort="descending"
-                    className="py-3 pr-4 font-medium"
-                  >
-                    Submitted
-                  </th>
-                  <th scope="col" className="py-3 font-medium">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => (
-                  <tr
-                    key={r.id}
-                    className="relative border-b border-wr-olive-green/15 transition-colors hover:bg-muted/60"
-                  >
-                    <th scope="row" className="py-3 pr-4 align-top font-medium">
-                      {/* Single tab stop per row: the org name is a stretched link. */}
-                      <Link
-                        href={`/admin/sponsors/${r.id}`}
-                        className="text-ink underline-offset-4 after:absolute after:inset-0 after:content-[''] hover:underline"
-                      >
-                        {r.orgName}
-                      </Link>
-                    </th>
-                    <td className="py-3 pr-4 align-top text-ink/80">
-                      {r.pocName}
-                    </td>
-                    <td className="py-3 pr-4 align-top text-ink/80">
-                      {formatFinancial(r.amount, r.toDiscuss)}
-                    </td>
-                    <td className="py-3 pr-4 align-top text-ink/80">
-                      {r.submittedAt ? (
-                        <time dateTime={r.submittedAt.toISOString()}>
-                          {formatDate(r.submittedAt)}
-                        </time>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-                    <td className="py-3 align-top">
-                      <StatusPill status={r.status} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {/* Desktop: semantic table. The caption names the FILTERED view and
+                its sort order — a sighted user reads that off the active chip
+                and the headers; nobody else can. */}
+            <DataTable
+              className="hidden md:table"
+              caption={`${activeLabel}, sorted by submission date, newest first.`}
+              rows={rows}
+              rowKey={(r) => r.id}
+              rowHeader={{
+                header: "Organization",
+                cell: (r) => r.orgName,
+                // Single tab stop per row: the org name is the stretched link.
+                href: (r) => `/admin/sponsors/${r.id}`,
+              }}
+              columns={columns}
+            />
 
-            {/* Mobile: card list mirroring the same one-link-per-row rule. */}
+            {/* Mobile: card list mirroring the same one-link-per-row rule. NOT a
+                table, and deliberately not folded into one — see DataTable's
+                RESPONSIVE note. */}
             <ul className="flex flex-col gap-3 md:hidden">
               {rows.map((r) => (
                 <li
